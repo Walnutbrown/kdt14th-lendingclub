@@ -27,7 +27,7 @@ git commit -m "<무엇을 했는지 한 줄>"
   - 원본(`raw/`), Test(`test_hold/`), 중간 데이터(`data/`), 모델·결과물(`outputs/`, `report/`)은 절대 커밋하지 않습니다. `git add -f`로 `.gitignore`를 우회하지 않습니다.
   - git에 올리는 것은 노트북(`.ipynb`), 코드, 설정(`contract/`), 문서뿐입니다.
   - 로컬에서 실행해 `data/`, `outputs/`, `report/` 산출물이 새로 생겼으면 커밋 대신 사용자에게 "Drive 공유폴더(`LendingClub/<폴더>/`)에 올리라"고 알립니다(`data/*.parquet`은 `00_config` 해시도 함께 공지).
-  - Drive 덮어쓰기 충돌을 막기 위해 산출물은 반드시 자기 구역 하위 폴더(`outputs/logit/`, `outputs/xgb/`, `outputs/eval/` 등)에 저장합니다.
+  - 사람별·버전별 폴더나 접미사(`_v2`, `_new` 등)를 새로 만들지 않고, 정해진 공용 경로(`data/`, `outputs/logit/`, `outputs/xgb/`, `outputs/eval/`, `report/`)에 새 결과가 나오면 기존 파일 위에 그대로 덮어써서 최신본 1개를 유지합니다.
   - 커밋 전에 `git diff --cached --stat`으로 확인하고, **5MB가 넘는 파일이 있으면 멈추고** 사용자에게 물어봅니다.
 - **Colab 실행 규칙**:
   - Colab에서 실행할 때는 노트북 첫 칸에서 `colab_setup.py`를 실행하면 `raw/`, `data/`, `outputs/`, `report/`가 팀 Drive 공유폴더로 자동 연결되어 산출물이 Drive에 바로 저장됩니다(최초 1회 Drive 웹에서 `LendingClub` 폴더를 "내 드라이브에 바로가기 추가" + 편집자 권한 필요).

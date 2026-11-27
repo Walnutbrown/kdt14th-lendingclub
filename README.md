@@ -58,7 +58,7 @@ git push -u origin logit/bootstrap-b100                           # 그다음 Gi
   !curl -sL https://raw.githubusercontent.com/Walnutbrown/kdt14th-lendingclub/main/colab_setup.py -o /content/colab_setup.py
   %run -i /content/colab_setup.py
   ```
-  실행 결과(`outputs/`, `report/`)는 팀 Drive 공유폴더에 바로 자동 저장되며 git에 올리지 않습니다(구역별 하위 폴더 `outputs/logit/`, `outputs/xgb/`, `outputs/eval/`로 분리해 덮어쓰기 방지). Colab에서 수정한 노트북/코드만 브랜치에 올릴 때는 `save_results("<구역>/<할 일>", ["notebooks/..."], "메시지")`를 씁니다(Colab 왼쪽 열쇠 아이콘 보안 비밀에 `GH_TOKEN` 1회 등록).
+  실행 결과(`outputs/`, `report/`)는 팀 Drive 공유폴더에 바로 자동 저장되며 git에 올리지 않습니다(사람별·버전별 폴더를 따로 만들지 않고 정해진 경로 `outputs/logit/`, `outputs/xgb/`, `outputs/eval/`, `report/` 위에 최신본을 그대로 덮어씁니다). Colab에서 수정한 노트북/코드만 브랜치에 올릴 때는 `save_results("<구역>/<할 일>", ["notebooks/..."], "메시지")`를 씁니다(Colab 왼쪽 열쇠 아이콘 보안 비밀에 `GH_TOKEN` 1회 등록).
 
 ## 노트북
 - `00_config` 공통 설정 (core 담당)
