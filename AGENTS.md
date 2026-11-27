@@ -16,7 +16,7 @@
 | 7·8 | Test **한 번** 채점: SR·ΔSR, AUC·KS·Brier·logloss, 위반율, Jaccard | `00b_test_prep`, `05_test` |
 
 ### 실험 불변 규칙 (어기면 결과 전체가 무효)
-1. **Test를 열지 않습니다.** `test_hold/`, `*test*.csv`를 읽는 코드를 만들거나 실행하지 않습니다. `00b_test_prep`·`05_test`의 `DRY_RUN = False` 실행은 사용자가 "사전 고정 끝, 본 Test 실행"이라고 명시했을 때만 합니다.
+1. **Test를 열지 않습니다.** 아래 예외를 제외하면 `test_hold/`, `*test*.csv`를 읽는 코드를 만들거나 실행하지 않습니다. 유일한 예외는 `99_freeze` 사전 고정(`STAGE="final"`) 완료 뒤 사용자가 "사전 고정 끝, 본 Test 실행"이라고 명시적으로 승인했을 때, 지정된 `00b_test_prep`·`05_test` 두 노트북의 본 실행(`DRY_RUN = False`)으로 Test를 읽고 평가하는 경우뿐입니다.
 2. **숫자는 `contract/params.json`에만 둡니다.** 노트북에 SEED, B, 승인율, 하이퍼파라미터, δ 같은 숫자를 직접 쓰지 않고 `00_config`가 만든 전역 변수를 씁니다.
 3. **분할을 바꾸지 않습니다.** 부트스트랩 분할은 `make_oob_splits(n, B, seed=SEED)` 하나로만 만들고, 회차마다 시드를 다시 고정하지 않습니다. ①②③의 `split_hash`가 같아야 합니다.
 4. **OOB는 평가 전용입니다.** OOB로 조기 종료, 튜닝, 전처리 fit을 하지 않습니다. 전처리는 회차마다 Train_b에만 fit합니다.
