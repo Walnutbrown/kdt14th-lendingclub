@@ -56,7 +56,7 @@ git push -u origin <브랜치>
 gh pr create --base main --title "<구역>: <할 일>" --body "<무엇을, 왜. 결과 파일 경로>"
 ```
 - PR 본문에 바뀐 파일과 확인한 결과(숫자, 그림 경로)를 적습니다.
-- 자기 PR을 스스로 merge하지 않습니다. 다른 팀원 1명이 승인해야 merge됩니다.
+- PR은 다른 팀원 1명의 승인 **또는 레포에 설정된 PR 리뷰 봇의 검토·승인**을 거쳐 merge합니다(코드를 작성한 작업 에이전트가 임의로 merge하지 않음).
 - merge되면 GitHub 브랜치는 자동으로 지워집니다. 로컬은 이렇게 정리합니다:
   ```bash
   git switch main && git pull origin main && git branch -d <브랜치>
