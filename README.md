@@ -25,7 +25,7 @@ numpy, pandas, pyarrow(parquet), scikit-learn(1.2 이상), xgboost, optuna(03_tu
 - 하루 이틀 안에 PR을 올릴 수 있는 크기로 나눕니다. 오래 열어 두면 `main`과 멀어져서 충돌이 납니다.
 
 ```bash
-git clone https://github.com/Walnutbrown/kdt14-lendingclub.git   # 처음 한 번
+git clone https://github.com/Walnutbrown/kdt14th-lendingclub.git # 처음 한 번
 git switch main && git pull                                       # 작업 시작할 때마다
 git switch -c logit/bootstrap-b100                                # 새 작업 브랜치
 # ... 노트북 수정·실행 ...
