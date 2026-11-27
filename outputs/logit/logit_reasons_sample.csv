@@ -1,0 +1,6 @@
+﻿,top3
+0,"['dti', 'log_loan_amnt', 'fico_range_low']"
+1,"['log_loan_amnt', 'acc_open_past_24mths', 'fico_range_low']"
+2,"['acc_open_past_24mths', 'log_annual_inc', 'total_acc']"
+3,"['dti', 'fico_range_low', 'home_ownership']"
+4,"['dti', 'log_annual_inc', 'inq_last_6mths']"

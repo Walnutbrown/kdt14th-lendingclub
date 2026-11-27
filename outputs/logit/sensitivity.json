@@ -1,0 +1,9 @@
+{
+ "A": {
+  "set": "core_t0",
+  "n_vars": 16,
+  "n_cols": 27,
+  "converged": true
+ },
+ "B": "TODO: 52개 세트가 lib_prep에 아직 없음 (00_config SENS_SETS 미결, core 담당)"
+}

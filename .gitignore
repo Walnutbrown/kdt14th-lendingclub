@@ -1,0 +1,18 @@
+# Raw & processed datasets (large files kept in Google Drive)
+raw/
+processed/
+test_hold/
+*.csv
+*.csv.gz
+*.parquet
+*.xlsx
+# small result tables are tracked
+!report/**/*.csv
+!outputs/**/*.csv
+
+# Python / Jupyter
+__pycache__/
+*.py[cod]
+.venv/
+.ipynb_checkpoints/
+.DS_Store

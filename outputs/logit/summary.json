@@ -1,0 +1,210 @@
+{
+ "a_star": 0.47,
+ "a_star_cv": 0.021276595744680812,
+ "tau_star_cv": 0.017774253230919985,
+ "more_stable": "tau",
+ "sr_max_mean": 0.17306782450226074,
+ "n_failed": 0,
+ "B": 3,
+ "B_config": 100,
+ "seed": 42,
+ "sr_mode": "with_treasury",
+ "min_rate": 0.05,
+ "hyperparameters": {
+  "C": "inf",
+  "max_iter": 2000
+ },
+ "columns": [
+  "fico_range_low",
+  "credit_hist_len",
+  "delinq_2yrs",
+  "inq_last_6mths",
+  "pub_rec",
+  "open_acc",
+  "total_acc",
+  "log_annual_inc",
+  "revol_util",
+  "log_revol_bal",
+  "log_loan_amnt",
+  "acc_open_past_24mths",
+  "collections_12_mths_ex_med",
+  "log_tot_coll_amt",
+  "log_tot_cur_bal",
+  "log_total_bal_ex_mort",
+  "log_total_bc_limit",
+  "log_total_il_high_credit_limit",
+  "mo_sin_rcnt_rev_tl_op",
+  "mo_sin_rcnt_tl",
+  "mort_acc",
+  "num_accts_ever_120_pd",
+  "num_actv_bc_tl",
+  "num_bc_tl",
+  "num_tl_90g_dpd_24m",
+  "pub_rec_bankruptcies",
+  "pct_tl_nvr_dlq",
+  "mths_since_recent_bc",
+  "log_bc_open_to_buy",
+  "percent_bc_gt_75",
+  "mo_sin_old_il_acct",
+  "dti",
+  "term_60m",
+  "emp_length",
+  "emp_length_na",
+  "mths_since_recent_inq",
+  "mths_since_recent_inq_na",
+  "home_ownership_OTHER",
+  "home_ownership_OWN",
+  "home_ownership_RENT",
+  "purpose_CAR",
+  "purpose_CREDIT_CARD",
+  "purpose_HOME_IMPROVEMENT",
+  "purpose_MAJOR_PURCHASE",
+  "purpose_MEDICAL",
+  "purpose_MOVING",
+  "purpose_OTHER",
+  "purpose_SMALL_BUSINESS",
+  "purpose_VACATION"
+ ],
+ "signs_commit": null,
+ "config_hash": "a01f81ea67d1",
+ "lib_prep_hash": "e07ddd6943c5",
+ "n_not_converged": 0,
+ "final_converged": true,
+ "meta": {
+  "config": {
+   "CONFIG_VERSION": "2026-11-26",
+   "STAGE": "dev",
+   "SEED": 42,
+   "SAMPLE": {
+    "mode": "screened_t0",
+    "start_year": 2013,
+    "maturity_cutoff_ym": "2020-04"
+   },
+   "PREP": {
+    "dti_clip_q": 0.995,
+    "rare_cat_min_freq": 0.005
+   },
+   "B": 100,
+   "B_TEST": 4999,
+   "MIN_RATE": 0.05,
+   "SR_MODE": "with_treasury",
+   "REF_MODEL": "xgb",
+   "ALPHA": 0.025,
+   "DELTA": null,
+   "LOGIT_PARAMS": {
+    "C": Infinity,
+    "max_iter": 2000
+   },
+   "XGB_FIXED": {
+    "objective": "binary:logistic",
+    "eval_metric": "logloss",
+    "tree_method": "hist",
+    "random_state": 42,
+    "n_jobs": -1
+   },
+   "XGB_PARAMS": {
+    "n_estimators": 200,
+    "max_depth": 4,
+    "learning_rate": 0.05,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8
+   },
+   "MONO_HP_MODE": "same_as_xgb",
+   "TUNE": {
+    "method": "optuna_tpe",
+    "n_trials": 30,
+    "sampler_seed": 42,
+    "cv_folds": 3,
+    "metric": "logloss",
+    "early_stopping_rounds": 50,
+    "max_trees": 2000,
+    "fold_prep": "refit_per_fold",
+    "final_trees": "mean_best_iteration",
+    "space": {
+     "max_depth": [
+      2,
+      6
+     ],
+     "learning_rate": [
+      0.02,
+      0.2,
+      "log"
+     ],
+     "min_child_weight": [
+      1,
+      100,
+      "log"
+     ],
+     "subsample": [
+      0.6,
+      1.0
+     ],
+     "colsample_bytree": [
+      0.5,
+      1.0
+     ],
+     "reg_lambda": [
+      0.1,
+      10,
+      "log"
+     ]
+    }
+   },
+   "EXPLAIN": {
+    "top_k": 3,
+    "perturb_sd": 0.25,
+    "viol_tol": 1e-06,
+    "jaccard_pairs": 200,
+    "rbo_p": 0.9
+   },
+   "SIGN_TABLE": "FEATURE_SPEC 2026-11-24 원안 + emp_length 0",
+   "RECOVERY_LAG": "lib_prep 기본값 5.0개월",
+   "SENS_SETS": "core_t0(16개)만",
+   "CI_METHOD": "percentile",
+   "AUDIT_CASES": {
+    "n": 3,
+    "pick": "random",
+    "seed": 42,
+    "where": "커트라인 바로 밖 거절"
+   },
+   "ROBUST": {
+    "weights": [
+     "equal",
+     "loan_amnt"
+    ],
+    "returns": [
+     "mirr",
+     "hpr"
+    ],
+    "rate_band": [
+     0.35,
+     0.63
+    ],
+    "own_a_star": false,
+    "pd_cutoff": false,
+    "rule": "세 견고성 모두에서 ΔSR 부호가 주 분석과 같으면 견고"
+   },
+   "RATES": [
+    0.05,
+    0.95,
+    91
+   ]
+  },
+  "fingerprint": "a01f81ea67d1",
+  "pending": [
+   "B_TEST",
+   "DELTA",
+   "XGB_PARAMS"
+  ],
+  "lib_prep": "e07ddd6943c5",
+  "python": "3.10.20",
+  "packages": {
+   "numpy": "2.2.5",
+   "pandas": "2.3.3",
+   "scikit-learn": "1.7.2",
+   "xgboost": null,
+   "shap": null,
+   "pyarrow": "25.0.1"
+  }
+ }
+}

@@ -1,0 +1,272 @@
+{
+ "xgb_params": {
+  "n_estimators": 1871,
+  "max_depth": 5,
+  "learning_rate": 0.021938759549986798,
+  "min_child_weight": 96.5307040965315,
+  "subsample": 0.65052423839947,
+  "colsample_bytree": 0.9566422003976768,
+  "reg_lambda": 4.7873341616831295
+ },
+ "best_logloss": 0.40812367347510436,
+ "fold_logloss": [
+  0.40788440478641785,
+  0.40822808760541,
+  0.4082585280334853
+ ],
+ "fold_trees": [
+  1981,
+  1941,
+  1691
+ ],
+ "n_trials": 30,
+ "dry_run": false,
+ "n_rows": 666195,
+ "seconds": 1600,
+ "config_hash": "a01f81ea67d1",
+ "lib_prep_hash": "e07ddd6943c5",
+ "top5": [
+  {
+   "number": 23,
+   "value": 0.40812367347510436,
+   "params_colsample_bytree": 0.9566422003976768,
+   "params_learning_rate": 0.021938759549986798,
+   "params_max_depth": 5,
+   "params_min_child_weight": 96.5307040965315,
+   "params_reg_lambda": 4.7873341616831295,
+   "params_subsample": 0.65052423839947,
+   "user_attrs_fold_logloss": [
+    0.40788440478641785,
+    0.40822808760541,
+    0.4082585280334853
+   ],
+   "user_attrs_fold_trees": [
+    1981,
+    1941,
+    1691
+   ],
+   "duration": "0 days 00:01:16.939761"
+  },
+  {
+   "number": 28,
+   "value": 0.408148988143662,
+   "params_colsample_bytree": 0.941169569579766,
+   "params_learning_rate": 0.022196713947927587,
+   "params_max_depth": 6,
+   "params_min_child_weight": 67.14191606623729,
+   "params_reg_lambda": 4.750868443927589,
+   "params_subsample": 0.6121509584245859,
+   "user_attrs_fold_logloss": [
+    0.4079652934850479,
+    0.40820439055469565,
+    0.40827728039124245
+   ],
+   "user_attrs_fold_trees": [
+    1444,
+    1378,
+    1477
+   ],
+   "duration": "0 days 00:01:09.302523"
+  },
+  {
+   "number": 27,
+   "value": 0.4081491612139358,
+   "params_colsample_bytree": 0.9154817335162639,
+   "params_learning_rate": 0.020022596440980315,
+   "params_max_depth": 5,
+   "params_min_child_weight": 79.77460316001662,
+   "params_reg_lambda": 3.6029376531633686,
+   "params_subsample": 0.6013196127001106,
+   "user_attrs_fold_logloss": [
+    0.40795934235776854,
+    0.4082582176646447,
+    0.4082299236193941
+   ],
+   "user_attrs_fold_trees": [
+    1975,
+    1851,
+    1873
+   ],
+   "duration": "0 days 00:01:18.499783"
+  },
+  {
+   "number": 26,
+   "value": 0.40815082856073165,
+   "params_colsample_bytree": 0.9953017545474137,
+   "params_learning_rate": 0.02327336353001475,
+   "params_max_depth": 6,
+   "params_min_child_weight": 99.38519928460369,
+   "params_reg_lambda": 1.6833582945434593,
+   "params_subsample": 0.6078575079460016,
+   "user_attrs_fold_logloss": [
+    0.4080184992842755,
+    0.40824041239369513,
+    0.40819357400422446
+   ],
+   "user_attrs_fold_trees": [
+    1241,
+    1490,
+    1368
+   ],
+   "duration": "0 days 00:01:03.169284"
+  },
+  {
+   "number": 13,
+   "value": 0.4082011008766835,
+   "params_colsample_bytree": 0.9381136976592377,
+   "params_learning_rate": 0.03371021731646731,
+   "params_max_depth": 4,
+   "params_min_child_weight": 88.19992936373598,
+   "params_reg_lambda": 2.836635030379999,
+   "params_subsample": 0.7184207756372698,
+   "user_attrs_fold_logloss": [
+    0.40801988035379466,
+    0.40831806852930147,
+    0.40826535374695433
+   ],
+   "user_attrs_fold_trees": [
+    1697,
+    1734,
+    1999
+   ],
+   "duration": "0 days 00:01:01.165554"
+  }
+ ],
+ "meta": {
+  "config": {
+   "CONFIG_VERSION": "2026-11-26",
+   "STAGE": "dev",
+   "SEED": 42,
+   "SAMPLE": {
+    "mode": "screened_t0",
+    "start_year": 2013,
+    "maturity_cutoff_ym": "2020-04"
+   },
+   "PREP": {
+    "dti_clip_q": 0.995,
+    "rare_cat_min_freq": 0.005
+   },
+   "B": 100,
+   "B_TEST": 4999,
+   "MIN_RATE": 0.05,
+   "SR_MODE": "with_treasury",
+   "REF_MODEL": "xgb",
+   "ALPHA": 0.025,
+   "DELTA": null,
+   "LOGIT_PARAMS": {
+    "C": Infinity,
+    "max_iter": 2000
+   },
+   "XGB_FIXED": {
+    "objective": "binary:logistic",
+    "eval_metric": "logloss",
+    "tree_method": "hist",
+    "random_state": 42,
+    "n_jobs": -1
+   },
+   "XGB_PARAMS": {
+    "n_estimators": 200,
+    "max_depth": 4,
+    "learning_rate": 0.05,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8
+   },
+   "MONO_HP_MODE": "same_as_xgb",
+   "TUNE": {
+    "method": "optuna_tpe",
+    "n_trials": 30,
+    "sampler_seed": 42,
+    "cv_folds": 3,
+    "metric": "logloss",
+    "early_stopping_rounds": 50,
+    "max_trees": 2000,
+    "fold_prep": "refit_per_fold",
+    "final_trees": "mean_best_iteration",
+    "space": {
+     "max_depth": [
+      2,
+      6
+     ],
+     "learning_rate": [
+      0.02,
+      0.2,
+      "log"
+     ],
+     "min_child_weight": [
+      1,
+      100,
+      "log"
+     ],
+     "subsample": [
+      0.6,
+      1.0
+     ],
+     "colsample_bytree": [
+      0.5,
+      1.0
+     ],
+     "reg_lambda": [
+      0.1,
+      10,
+      "log"
+     ]
+    }
+   },
+   "EXPLAIN": {
+    "top_k": 3,
+    "perturb_sd": 0.25,
+    "viol_tol": 1e-06,
+    "jaccard_pairs": 200,
+    "rbo_p": 0.9
+   },
+   "SIGN_TABLE": "FEATURE_SPEC 2026-11-24 원안 + emp_length 0",
+   "RECOVERY_LAG": "lib_prep 기본값 5.0개월",
+   "SENS_SETS": "core_t0(16개)만",
+   "CI_METHOD": "percentile",
+   "AUDIT_CASES": {
+    "n": 3,
+    "pick": "random",
+    "seed": 42,
+    "where": "커트라인 바로 밖 거절"
+   },
+   "ROBUST": {
+    "weights": [
+     "equal",
+     "loan_amnt"
+    ],
+    "returns": [
+     "mirr",
+     "hpr"
+    ],
+    "rate_band": [
+     0.35,
+     0.63
+    ],
+    "own_a_star": false,
+    "pd_cutoff": false,
+    "rule": "세 견고성 모두에서 ΔSR 부호가 주 분석과 같으면 견고"
+   },
+   "RATES": [
+    0.05,
+    0.95,
+    91
+   ]
+  },
+  "fingerprint": "a01f81ea67d1",
+  "pending": [
+   "B_TEST",
+   "DELTA",
+   "XGB_PARAMS"
+  ],
+  "lib_prep": "e07ddd6943c5",
+  "python": "3.10.20",
+  "packages": {
+   "numpy": "2.2.5",
+   "pandas": "2.3.3",
+   "scikit-learn": "1.7.2",
+   "xgboost": "3.2.0",
+   "shap": "0.49.1",
+   "pyarrow": "25.0.1"
+  }
+ }
+}

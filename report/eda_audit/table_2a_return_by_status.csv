@@ -1,0 +1,5 @@
+,rf_ann,rf_ann,rf_ann,rf_ann,mirr,mirr,mirr,mirr,excess_ret,excess_ret,excess_ret,excess_ret,hpr_ann,hpr_ann,hpr_ann,hpr_ann
+,count,mean,median,std,count,mean,median,std,count,mean,median,std,count,mean,median,std
+y,,,,,,,,,,,,,,,,
+0,557877,0.0105,0.0099,0.003,557877,0.0552,0.0528,0.0223,557877,0.0447,0.0424,0.0222,557877,0.0486,0.0467,0.023
+1,108318,0.0111,0.0102,0.0031,108318,-0.151,-0.1308,0.1441,108318,-0.1621,-0.1422,0.1438,108318,-0.1577,-0.1381,0.1436

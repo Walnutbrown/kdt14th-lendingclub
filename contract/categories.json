@@ -1,0 +1,20 @@
+{
+  "home_ownership": [
+    "MORTGAGE",
+    "OTHER",
+    "OWN",
+    "RENT"
+  ],
+  "purpose": [
+    "CAR",
+    "CREDIT_CARD",
+    "DEBT_CONSOLIDATION",
+    "HOME_IMPROVEMENT",
+    "MAJOR_PURCHASE",
+    "MEDICAL",
+    "MOVING",
+    "OTHER",
+    "SMALL_BUSINESS",
+    "VACATION"
+  ]
+}
