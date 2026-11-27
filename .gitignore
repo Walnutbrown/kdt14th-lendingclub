@@ -1,5 +1,6 @@
 # Raw & processed datasets (large files kept in Google Drive)
-raw/
+/raw
+/data
 processed/
 test_hold/
 *.csv

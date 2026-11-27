@@ -53,7 +53,12 @@ git push -u origin logit/bootstrap-b100                           # 그다음 Gi
   ```
 - 실행하면 `[config] 해시`와 `[lib_prep] 해시`가 출력됩니다. 공지된 해시와 다르면 옛 파일입니다.
 - `00_config`와 `lib_prep`은 core 담당만 고칩니다.
-- Colab: `!git clone https://github.com/Walnutbrown/kdt14th-lendingclub.git` 후 Drive에서 데이터를 넣고, 첫 칸 맨 위에 `%cd /content/kdt14th-lendingclub/notebooks`. 세션이 끝나면 지워지므로 결과는 브랜치에 커밋·푸시해 둡니다.
+- Colab: 첫 칸 맨 위에 아래 두 줄을 더합니다. Drive를 마운트하고, 레포를 받고, Drive의 `raw/`·`data/`를 연결하고, optuna·한글 글꼴을 설치한 뒤 `notebooks/`로 이동합니다. 처음 한 번은 Drive 웹에서 공유받은 `LendingClub` 폴더를 "바로가기 추가 → 내 드라이브"로 넣어 둡니다.
+  ```
+  !curl -sL https://raw.githubusercontent.com/Walnutbrown/kdt14th-lendingclub/main/colab_setup.py -o /content/colab_setup.py
+  %run -i /content/colab_setup.py
+  ```
+  세션이 끝나면 결과가 지워지므로 `save_results("<구역>/<할 일>", ["outputs/...", "report/..."], "메시지")`로 브랜치에 push한 뒤 PR을 만듭니다. Colab 왼쪽 열쇠 아이콘(보안 비밀)에 GitHub 토큰을 `GH_TOKEN`으로 한 번 등록해 둡니다.
 
 ## 노트북
 - `00_config` 공통 설정 (core 담당)
