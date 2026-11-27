@@ -1,9 +1,9 @@
 # lendingclub 프로젝트 폴더 (2026-11-25)
 
-Drive를 마운트하지 않고, 이 폴더를 각자 내려받아 씁니다. .py 파일은 없고 노트북만 있습니다.
+코드는 이 GitHub 레포가 기준입니다. Drive에는 데이터만 둡니다. .py 파일은 없고 노트북만 있습니다. AI 에이전트(Claude Code, Codex)로 작업할 때의 git 규칙은 [AGENTS.md](AGENTS.md)에 있습니다.
 
 ## 필요한 패키지
-numpy, pandas, pyarrow(parquet), scikit-learn(1.2 이상), xgboost, optuna(03_tune), matplotlib, shap(6-C). Colab에는 optuna만 없습니다(`pip install optuna`).
+Python 3.10, `pip install -r requirements.txt` (검증된 버전 고정). Colab에는 optuna만 없습니다(`pip install optuna`).
 
 ## Git 작업 방식 (GitHub 레포)
 
@@ -37,12 +37,12 @@ git push -u origin logit/bootstrap-b100                           # 그다음 Gi
 - 데이터(`raw/`, `test_hold/`, `data/*.parquet`)는 git에 올라가지 않습니다(`.gitignore`).
 
 ## 처음 한 번
-1. 팀 Drive `.ipynb/2026-11-25/lendingclub/` 폴더를 통째로 내려받아 원하는 곳에 둡니다. 결정 문서는 같은 날짜 폴더의 `decisions/`에 있습니다.
-2. 팀 Drive `raw/`에서 내려받아 `raw/`에 넣습니다.
-   - `us_treasury_3y_5y_monthly.csv` (모두)
-   - `lending_club_2020_train.csv` (01_prep 담당 core 담당만)
-   - test 파일은 넣지 않습니다. 넣으면 00_config가 멈춥니다.
-3. `contract/`와 `report/`의 요약표는 이미 들어 있습니다(2026-11-25 실제 Dev로 생성). `data/`의 parquet 두 개는 core 담당이 `01_prep`을 돌려 Drive에 올리면 받아 같은 위치에 넣습니다.
+1. 레포를 clone하고 패키지를 설치합니다: `git clone https://github.com/Walnutbrown/kdt14th-lendingclub.git` → `pip install -r requirements.txt`
+2. 데이터는 팀 Drive에서 받아 같은 경로에 넣습니다(위치는 팀 Notion의 LendingClub 페이지 "데이터 위치").
+   - `raw/us_treasury_3y_5y_monthly.csv` (모두)
+   - `raw/lending_club_2020_train.csv` (01_prep을 돌리는 core만)
+   - `data/dev_X_raw.parquet`, `data/dev_meta.parquet` (모두)
+3. `contract/`와 `report/`의 요약표는 레포에 이미 들어 있습니다.
 
 ## 실행 규칙
 - 노트북은 `notebooks/` 안에서 실행하고, 첫 칸은 다음 세 줄입니다.
@@ -53,7 +53,7 @@ git push -u origin logit/bootstrap-b100                           # 그다음 Gi
   ```
 - 실행하면 `[config] 해시`와 `[lib_prep] 해시`가 출력됩니다. 공지된 해시와 다르면 옛 파일입니다.
 - `00_config`와 `lib_prep`은 core 담당만 고칩니다.
-- Colab: 폴더를 `/content/lendingclub`으로 올리고, 첫 칸 맨 위에 `%cd /content/lendingclub/notebooks`. 세션이 끝나면 지워지므로 `outputs/`는 내려받아 둡니다.
+- Colab: `!git clone https://github.com/Walnutbrown/kdt14th-lendingclub.git` 후 Drive에서 데이터를 넣고, 첫 칸 맨 위에 `%cd /content/kdt14th-lendingclub/notebooks`. 세션이 끝나면 지워지므로 결과는 브랜치에 커밋·푸시해 둡니다.
 
 ## 노트북
 - `00_config` 공통 설정 (core 담당)
