@@ -23,7 +23,11 @@ git add notebooks/02_logit.ipynb outputs/logit/   # 파일을 직접 지정
 git commit -m "<무엇을 했는지 한 줄>"
 ```
 - `git add .`, `git add -A`, `git commit -a`는 쓰지 않습니다. 다른 구역 파일이 섞여 들어갑니다.
-- 데이터(`raw/`, `test_hold/`, `data/*.parquet`, 원본 CSV)는 올리지 않습니다.
+- **데이터는 git이 아니라 팀 Drive에 둡니다.** 이 레포는 public이라 커밋한 파일은 누구나 받을 수 있고, 지워도 기록에 남습니다.
+  - 원본(`raw/`), Test(`test_hold/`), 중간 데이터(`data/*.parquet`)는 절대 커밋하지 않습니다. `git add -f`로 `.gitignore`를 우회하지 않습니다.
+  - parquet을 새로 만들었으면 커밋 대신 사용자에게 "Drive `data/`에 올리고 `00_config`가 출력한 해시를 공지하라"고 알립니다.
+  - git에 올리는 것은 `outputs/`, `report/`의 작은 결과물(표 CSV, json, 그림, 모델)뿐입니다.
+  - 커밋 전에 `git diff --cached --stat`으로 확인하고, **5MB가 넘는 파일이 있으면 멈추고** 사용자에게 물어봅니다.
 - **사람 정보 금지**: 이름, 이메일, 학번, `/Users/<이름>/...` 같은 로컬 경로를 파일·커밋 메시지에 넣지 않습니다. 노트북 출력에 로컬 경로가 찍혔으면 커밋 전에 `~`로 바꾸거나 출력을 지웁니다. 담당자 정보는 팀 Notion에만 있습니다.
 
 ## 3. PR 올리기 전: main 변경 받기
