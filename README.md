@@ -12,10 +12,10 @@ Python 3.10, `pip install -r requirements.txt` (검증된 버전 고정). Colab�
 
 | 구역 | 파일 |
 |---|---|
-| `core` | `00_config`, `lib_prep`, `00b_test_prep`, `01_prep`, `01b_eda_audit`, `06_collect`, `99_freeze`, `contract/`, 보고서 본문 |
-| `logit` | `02_logit`, `lib_engine`, `model_template`, `outputs/logit/`, 표 4, 그림 2~4, 부록 D·E |
-| `xgb` | `03_tune`, `03_xgb`, `04_xgb_mono`, 부록 B·C |
-| `eval` | `05_test`, `lib_eval_add`, 표 5~8, 그림 5~8 |
+| `core` | `00_config`, `lib_prep`, `00b_test_prep`, `01_prep`, `01b_eda_audit`, `99_freeze`, `contract/`, 보고서 본문 |
+| `logit` | `02_logit`, `06_collect`, `lib_engine`, `model_template`, `outputs/logit/`, 표 4, 그림 2~4, 부록 D·E |
+| `xgb` | `03_tune`, `03_xgb`, `04_xgb_mono`, `outputs/xgb/`, 부록 B·C |
+| `eval` | `05_test`, `05b_explain`, `lib_eval_add`, `outputs/eval/`, 표 5~8, 그림 5~8 |
 
 함께 쓰는 파일: `07_core16`(①은 logit 담당, ②③은 xgb 담당이 실행), `lib_eval`(core 담당이 작성하고 eval 담당이 검증). 이 두 파일은 한 사람의 PR이 `main`에 합쳐진 뒤에 다음 사람이 브랜치를 땁니다.
 
@@ -58,7 +58,7 @@ git push -u origin logit/bootstrap-b100                           # 그다음 Gi
   !curl -sL https://raw.githubusercontent.com/Walnutbrown/kdt14th-lendingclub/main/colab_setup.py -o /content/colab_setup.py
   %run -i /content/colab_setup.py
   ```
-  실행 결과(`outputs/`, `report/`)는 팀 Drive 공유폴더에 바로 자동 저장되며 git에 올리지 않습니다(구역별 하위 폴더 `outputs/logit/`, `outputs/xgb/`, `outputs/eval/`로 분리해 덮어쓰기 방지). Colab에서 수정한 노트북/코드만 브랜치에 올릴 때는 `save_results("<구역>/<할 일>", ["notebooks/..."], "메시지")`를 씁니다(Colab 왼쪽 열쇠 아이콘 보안 비밀에 `GH_TOKEN` 1회 등록).
+  실행 결과(`outputs/`, `report/`)는 팀 Drive 공유폴더에 바로 자동 저장되며 git에 올리지 않습니다(사람별·버전별 폴더를 따로 만들지 않고 정해진 경로 `outputs/logit/`, `outputs/xgb/`, `outputs/eval/`, `report/` 위에 최신본을 그대로 덮어씁니다). Colab에서 수정한 노트북/코드만 브랜치에 올릴 때는 `save_results("<구역>/<할 일>", ["notebooks/..."], "메시지")`를 씁니다(Colab 왼쪽 열쇠 아이콘 보안 비밀에 `GH_TOKEN` 1회 등록).
 
 ## 노트북
 - `00_config` 공통 설정 (core 담당)
