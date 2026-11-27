@@ -12,10 +12,10 @@ Python 3.10, `pip install -r requirements.txt` (검증된 버전 고정). Colab�
 
 | 구역 | 파일 |
 |---|---|
-| `core` | `00_config`, `lib_prep`, `00b_test_prep`, `01_prep`, `01b_eda_audit`, `06_collect`, `99_freeze`, `contract/`, 보고서 본문 |
-| `logit` | `02_logit`, `lib_engine`, `model_template`, `outputs/logit/`, 표 4, 그림 2~4, 부록 D·E |
-| `xgb` | `03_tune`, `03_xgb`, `04_xgb_mono`, 부록 B·C |
-| `eval` | `05_test`, `lib_eval_add`, 표 5~8, 그림 5~8 |
+| `core` | `00_config`, `lib_prep`, `00b_test_prep`, `01_prep`, `01b_eda_audit`, `99_freeze`, `contract/`, 보고서 본문 |
+| `logit` | `02_logit`, `06_collect`, `lib_engine`, `model_template`, `outputs/logit/`, 표 4, 그림 2~4, 부록 D·E |
+| `xgb` | `03_tune`, `03_xgb`, `04_xgb_mono`, `outputs/xgb/`, 부록 B·C |
+| `eval` | `05_test`, `05b_explain`, `lib_eval_add`, `outputs/eval/`, 표 5~8, 그림 5~8 |
 
 함께 쓰는 파일: `07_core16`(①은 logit 담당, ②③은 xgb 담당이 실행), `lib_eval`(core 담당이 작성하고 eval 담당이 검증). 이 두 파일은 한 사람의 PR이 `main`에 합쳐진 뒤에 다음 사람이 브랜치를 땁니다.
 

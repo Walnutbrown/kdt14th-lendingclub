@@ -6,6 +6,9 @@
 - 사용자에게 **구역**(`core`, `logit`, `xgb`, `eval`)과 **할 일**을 확인합니다. 구역별 파일은 README의 "구역별 파일" 표를 봅니다.
 - 자기 구역이 아닌 파일은 고치지 않습니다. 필요하면 사용자에게 "그 구역 담당에게 요청하라"고 알립니다.
 - `notebooks/00_config.ipynb`, `notebooks/lib_prep.ipynb`, `contract/`는 `core` 구역만 고칩니다.
+- **인풋·선행 산출물 경로 확인 (작업·실행 전 필수)**:
+  - 노트북을 수정·실행하기 전에 필요한 입력 파일(`raw/`, `data/`, 선행 단계 `outputs/...`)이 Drive 공유폴더(`LendingClub/`)에 실제로 존재하는지 먼저 확인합니다(없으면 사용자에게 선행 단계 실행 또는 Drive 업로드를 요청).
+  - 현재 노트북이 읽는 입력 경로가 이전 단계 노트북이 저장한 출력 디렉토리(`DATA_DIR`, `OUT_DIR / "<구역>"`, `REPORT_DIR`)와 정확히 일치하는지 대조하고, 어긋나면 `00_config.ipynb`의 공용 경로(`DATA_DIR`, `OUT_DIR`, `REPORT_DIR`) 기준으로 맞춥니다.
 
 ## 1. 시작: 항상 최신 main에서 새 브랜치
 ```bash
