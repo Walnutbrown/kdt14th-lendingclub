@@ -1,4 +1,4 @@
-"""Colab 준비: Drive 마운트 → 레포 clone/pull → Drive 입출력(raw·data·outputs·report) 연결 → optuna·한글 글꼴 → notebooks/로 이동.
+"""Colab 준비: Drive 마운트 → 레포 clone/pull → Drive 입출력(raw·data·outputs·report·freeze·test_hold) 연결 → optuna·한글 글꼴 → notebooks/로 이동.
 
 노트북 첫 칸 (Colab에서만, 로컬 Jupyter는 기존 세 줄 그대로):
     !curl -sL https://raw.githubusercontent.com/Walnutbrown/kdt14th-lendingclub/main/colab_setup.py -o /content/colab_setup.py
@@ -8,7 +8,7 @@
     %run -i ./lib_prep.ipynb
 
 처음 한 번: Drive 웹에서 공유받은 'LendingClub' 폴더(편집자 권한 필요) → 오른쪽 클릭 → '바로가기 추가' → '내 드라이브'.
-산출물(outputs/, report/)은 Drive 공유폴더에 바로 자동 저장되며 git에 올리지 않습니다.
+산출물(outputs/, report/, freeze/, test_hold/)은 Drive 공유폴더에 바로 자동 저장되며 git에 올리지 않습니다.
 코드/노트북을 Colab에서 바로 push할 때만 save_results("logit/bootstrap-b100", ["notebooks/02_logit.ipynb"], "메시지") 사용
 (Colab 왼쪽 열쇠 아이콘 '보안 비밀'에 GH_TOKEN 등록 필요: GitHub → Settings → Developer settings → Personal access tokens).
 """
@@ -21,7 +21,8 @@ REPO = os.environ.get("LC_REPO", "/content/kdt14th-lendingclub")
 BRANCH = os.environ.get("LC_BRANCH", "main").strip() or "main"
 DRIVE_ROOT = os.environ.get("LC_DRIVE", "/content/drive/MyDrive/LendingClub")
 IN_LINKS = {"raw": "raw", "data": ".ipynb/lendingclub/data"}   # 투입: Drive에 이미 있어야 함
-OUT_LINKS = {"outputs": "outputs", "report": "report"}         # 산출: 기존 Drive 폴더에 바로 덮어쓰기
+OUT_LINKS = {"outputs": "outputs", "report": "report",         # 산출: 기존 Drive 폴더에 바로 덮어쓰기
+             "freeze": "freeze", "test_hold": "test_hold"}     # 99_freeze 기록·00b Test parquet: 세션이 바뀌어도 05_test가 읽도록 Drive에 둠
 BLOCKED_GIT_PREFIXES = ("raw/", "data/", "test_hold/", "outputs/", "report/", "freeze/")
 NANUM = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 
@@ -101,7 +102,7 @@ COLAB_SETUP_INFO = {
 }
 print(
     f"[colab_setup] 브랜치 {COLAB_SETUP_INFO['branch']} ({COLAB_SETUP_INFO['head'][:8]})"
-    f" | raw·data·outputs·report → {DRIVE_ROOT} | 위치 {os.getcwd()}"
+    f" | raw·data·outputs·report·freeze·test_hold → {DRIVE_ROOT} | 위치 {os.getcwd()}"
 )
 
 
