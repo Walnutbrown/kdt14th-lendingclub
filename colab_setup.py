@@ -50,29 +50,22 @@ def _same_file(p1, p2):
     return os.path.getsize(p1) == os.path.getsize(p2) and _file_sha256(p1) == _file_sha256(p2)
 
 
-def _find_conflicts(src_dir, dst_dir):
-    """src_dir와 dst_dir 양쪽에 모두 존재하면서 내용이 다른 파일의 상대경로 목록을 반환한다."""
-    conflicts = []
-    for root, _, files in os.walk(src_dir):
-        rel = os.path.relpath(root, src_dir)
-        for name in sorted(files):
-            rel_path = name if rel == "." else os.path.join(rel, name)
-            src_f, dst_f = os.path.join(src_dir, rel_path), os.path.join(dst_dir, rel_path)
-            if os.path.exists(dst_f) and not _same_file(src_f, dst_f):
-                conflicts.append(rel_path)
-    return conflicts
-
-
-def _copy_missing(src_dir, dst_dir):
-    """src_dir의 파일 중 dst_dir에 없는 것만 복사한다(Drive 기존 파일은 덮어쓰지 않음)."""
+def _sync_to_drive(src_dir, dst_dir):
+    """로컬 src_dir의 파일을 Drive dst_dir로 옮긴다. 동명 파일이 있으면 더 최신(mtime) 파일로 덮어쓴다."""
     for root, _, files in os.walk(src_dir):
         rel = os.path.relpath(root, src_dir)
         out_dir = dst_dir if rel == "." else os.path.join(dst_dir, rel)
         os.makedirs(out_dir, exist_ok=True)
-        for name in files:
+        for name in sorted(files):
             src_f, dst_f = os.path.join(root, name), os.path.join(out_dir, name)
             if not os.path.exists(dst_f):
                 shutil.copy2(src_f, dst_f)
+            elif os.path.isfile(dst_f) and not _same_file(src_f, dst_f):
+                if os.path.getmtime(src_f) >= os.path.getmtime(dst_f):
+                    shutil.copy2(src_f, dst_f)
+                    print(f"[colab_setup] Drive 기존 파일 덮어씀(새 로컬 파일): {os.path.relpath(dst_f, DRIVE_ROOT)}")
+                else:
+                    print(f"[colab_setup] Drive 최신 파일 유지(로컬 파일이 더 오래됨): {os.path.relpath(dst_f, DRIVE_ROOT)}")
 
 
 from google.colab import drive  # noqa: E402  (Colab 전용)
@@ -104,28 +97,13 @@ for rel, src in IN_LINKS.items():
     else:
         os.symlink(target, dst)
 
-# 복사와 삭제를 시작하기 전에 OUT_LINKS 전체에서 내용이 다른 동명 파일 충돌을 먼저 검사한다.
-_conflicts = []
-for rel, src in OUT_LINKS.items():
-    dst, target = os.path.join(REPO, rel), os.path.join(DRIVE_ROOT, src)
-    if os.path.isdir(dst) and not os.path.islink(dst) and os.path.isdir(target):
-        for c in _find_conflicts(dst, target):
-            _conflicts.append((rel, os.path.join(dst, c), os.path.join(target, c)))
-if _conflicts:
-    details = "\n".join(f" - [{rel}] 로컬: {src_f}  ≠  Drive: {dst_f}" for rel, src_f, dst_f in _conflicts)
-    raise FileExistsError(
-        "로컬 폴더와 Drive 폴더에 내용이 다른 동명 파일이 있어 두 사본을 모두 보존하고 중단했습니다.\n"
-        f"{details}\n"
-        "유지할 쪽을 고른 뒤 나머지 사본(로컬 또는 Drive)을 삭제/이동하고 다시 실행하세요."
-    )
-
 for rel, src in OUT_LINKS.items():
     dst, target = os.path.join(REPO, rel), os.path.join(DRIVE_ROOT, src)
     os.makedirs(target, exist_ok=True)
     if os.path.islink(dst):
         os.unlink(dst)
     elif os.path.isdir(dst):
-        _copy_missing(dst, target)   # 레포의 기존 요약표 등이 Drive에 없을 때만 보존
+        _sync_to_drive(dst, target)   # 로컬 산출물이 있으면 Drive로 옮김 (동명 파일은 더 최신 파일로 덮어쓰기)
         shutil.rmtree(dst)
     os.symlink(target, dst)
 
