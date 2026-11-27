@@ -51,7 +51,8 @@ git push -u origin logit/bootstrap-b100                           # 그다음 Gi
   %run -i ./00_config.ipynb
   %run -i ./lib_prep.ipynb
   ```
-- 실행하면 `[config] 공유해시`(= OOB 공통 설정 해시)·`전체해시`와 `[lib_prep] 해시`가 출력됩니다. 개발 중에는 구역별 독립 설정(`XGB_PARAMS`, `DELTA`, `B_TEST`, `EXPLAIN`, `ROBUST`, `STAGE`)을 바꿔도 공유해시가 유지되어 무관한 모형 결과를 막지 않습니다. 최종 통합·사전 고정(`99_freeze`)에서는 모형별 범위 해시·파일 sha256·`selection.json`을 모두 검증하고, `00b_test_prep`·`05_test`는 `FREEZE_RECORD.json` 검증을 통과해야 Test를 엽니다.
+- 실행하면 `[config] 공유해시`(= OOB 공통 설정 해시)·`전체해시`와 `[lib_prep] 해시`가 출력됩니다. 개발 중에는 구역별 독립 설정(`XGB_PARAMS`, `DELTA`, `B_TEST`, `EXPLAIN`, `ROBUST`, `STAGE`)을 바꿔도 공유해시가 유지되어 무관한 모형 결과를 막지 않습니다.
+- **실험 숫자·파라미터 수정**: `00_config.ipynb`를 열지 않고 **`contract/params.json`**의 값만 수정하면 됩니다(미결 확정 시 `"PENDING"`에서 해당 키만 삭제). 로컬 시험용 JSON을 따로 쓸 때는 `LC_PARAMS_JSON` 환경변수로 경로를 지정할 수 있습니다.
 - `00_config`와 `lib_prep`은 core 담당만 고칩니다.
 - Colab: 첫 칸 맨 위에 아래 두 줄을 더합니다. Drive를 마운트하고, 레포를 받고, Drive의 `raw/`·`data/`(투입)와 `outputs/`·`report/`(산출)를 연결하고, optuna·한글 글꼴을 설치한 뒤 `notebooks/`로 이동합니다. 처음 한 번은 Drive 웹에서 공유받은 `LendingClub` 폴더(편집자 권한 필요)를 "바로가기 추가 → 내 드라이브"로 넣어 둡니다.
   - 기능 브랜치의 `00_config`·`lib_*`을 시험할 때는 `colab_setup.py` 실행 전에 `os.environ["LC_BRANCH"] = "<브랜치명>"`을 지정합니다.
