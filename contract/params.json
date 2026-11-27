@@ -1,0 +1,95 @@
+{
+  "CONFIG_VERSION": "2026-11-26",
+  "STAGE": "dev",
+  "SEED": 42,
+  "SAMPLE": {
+    "mode": "screened_t0",
+    "start_year": 2013,
+    "maturity_cutoff_ym": "2020-04"
+  },
+  "EXPECT": {
+    "n_dev": 1109665,
+    "default_rate": 0.1626,
+    "n_raw_features": 37
+  },
+  "PREP": {
+    "dti_clip_q": 0.995,
+    "rare_cat_min_freq": 0.005
+  },
+  "SIGN_TABLE": "FEATURE_SPEC 2026-11-24 원안 + emp_length 0",
+  "RECOVERY_LAG": "lib_prep 기본값 5.0개월",
+  "SENS_SETS": "core_t0(16개)만",
+  "B": 100,
+  "B_TEST": 4999,
+  "RATES": [0.05, 0.95, 91],
+  "MIN_RATE": 0.05,
+  "SR_MODE": "with_treasury",
+  "REF_MODEL": "xgb",
+  "ALPHA": 0.025,
+  "DELTA": null,
+  "LOGIT_PARAMS": {
+    "C": "inf",
+    "max_iter": 2000
+  },
+  "XGB_FIXED": {
+    "objective": "binary:logistic",
+    "eval_metric": "logloss",
+    "tree_method": "hist",
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "XGB_PARAMS": {
+    "n_estimators": 200,
+    "max_depth": 4,
+    "learning_rate": 0.02,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8
+  },
+  "MONO_HP_MODE": "same_as_xgb",
+  "TUNE": {
+    "method": "optuna_tpe",
+    "n_trials": 50,
+    "sampler_seed": 42,
+    "cv_folds": 3,
+    "metric": "logloss",
+    "early_stopping_rounds": 50,
+    "max_trees": 4000,
+    "fold_prep": "refit_per_fold",
+    "final_trees": "mean_best_iteration",
+    "space": {
+      "max_depth": [3, 8],
+      "learning_rate": [0.02, 0.2, "log"],
+      "min_child_weight": [10, 500, "log"],
+      "subsample": [0.4, 1.0],
+      "colsample_bytree": [0.5, 1.0],
+      "reg_lambda": [0.1, 10, "log"]
+    }
+  },
+  "EXPLAIN": {
+    "top_k": 3,
+    "perturb_sd": 0.25,
+    "viol_tol": 1e-06,
+    "jaccard_pairs": 200,
+    "rbo_p": 0.9
+  },
+  "CI_METHOD": "percentile",
+  "AUDIT_CASES": {
+    "n": 3,
+    "pick": "random",
+    "seed": 42,
+    "where": "커트라인 바로 밖 거절"
+  },
+  "ROBUST": {
+    "weights": ["equal", "loan_amnt"],
+    "returns": ["mirr", "hpr"],
+    "rate_band": [0.35, 0.63],
+    "own_a_star": false,
+    "pd_cutoff": false,
+    "rule": "세 견고성 모두에서 ΔSR 부호가 주 분석과 같으면 견고"
+  },
+  "PENDING": {
+    "B_TEST": "규칙 확정: 4,999회가 10분 안이면 4,999, 아니면 1,999. eval 담당이 시간 측정 후 값만 기입",
+    "DELTA": "Dev OOB의 ΔSR 분포와 경제적 의미로 core 담당이 결정",
+    "XGB_PARAMS": "xgb 담당 튜닝 결과로 교체"
+  }
+}
