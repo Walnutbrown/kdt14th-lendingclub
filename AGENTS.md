@@ -33,8 +33,14 @@ git commit -m "<무엇을 했는지 한 줄>"
   - 사람별·버전별 폴더나 접미사(`_v2`, `_new` 등)를 새로 만들지 않고, 정해진 공용 경로(`data/`, `outputs/logit/`, `outputs/xgb/`, `outputs/eval/`, `report/`)에 새 결과가 나오면 기존 파일 위에 그대로 덮어써서 최신본 1개를 유지합니다.
   - 커밋 전에 `git diff --cached --stat`으로 확인하고, **5MB가 넘는 파일이 있으면 멈추고** 사용자에게 물어봅니다.
 - **Colab 실행 규칙**:
-  - Colab에서 실행할 때는 노트북 첫 칸에서 `colab_setup.py`를 실행하면 `raw/`, `data/`, `outputs/`, `report/`가 팀 Drive 공유폴더로 자동 연결되어 산출물이 Drive에 바로 저장됩니다(최초 1회 Drive 웹에서 `LendingClub` 폴더를 "내 드라이브에 바로가기 추가" + 편집자 권한 필요).
-  - 에이전트는 원격 Colab 런타임을 직접 실행할 수 없으므로, Colab 실행이 필요한 작업은 노트북을 수정한 뒤 사용자에게 IDE의 Google Colab 확장 또는 웹 Colab에서 실행하도록 안내합니다.
+  - **새 노트북을 만들거나 기존 실행 노트북을 수정할 때는 첫 코드 셀 맨 위에 아래 Colab 자동 연결 코드를 반드시 포함**합니다(로컬에서는 건너뛰고, Colab에서만 `colab_setup.py`가 실행되어 `raw/`, `data/`, `outputs/`, `report/`가 팀 Drive 공유폴더로 자동 연결·저장됩니다):
+    ```python
+    import sys
+    if "google.colab" in sys.modules:
+        !curl -sL https://raw.githubusercontent.com/Walnutbrown/kdt14th-lendingclub/main/colab_setup.py -o /content/colab_setup.py
+        %run -i /content/colab_setup.py
+    ```
+  - 에이전트는 원격 Colab 런타임을 직접 실행할 수 없으므로, 노트북 수정·푸시 후 사용자에게 **IDE의 Google Colab 확장 또는 웹 Colab 링크(`https://colab.research.google.com/github/Walnutbrown/kdt14th-lendingclub/blob/<브랜치>/<노트북경로>`)로 실행**하도록 안내합니다(최초 1회 Drive 웹에서 `LendingClub` 폴더를 "내 드라이브에 바로가기 추가" + 편집자 권한 필요).
 - **사람 정보 금지**: 이름, 이메일, 학번, `/Users/<이름>/...` 같은 로컬 경로를 파일·커밋 메시지에 넣지 않습니다. 노트북 출력에 로컬 경로가 찍혔으면 커밋 전에 `~`로 바꾸거나 출력을 지웁니다. 담당자 정보는 팀 Notion에만 있습니다.
 
 ## 3. PR 올리기 전: main 변경 받기
