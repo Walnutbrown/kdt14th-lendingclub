@@ -1,6 +1,6 @@
 # lendingclub 프로젝트 폴더 (2026-11-25)
 
-코드는 이 GitHub 레포가 기준입니다. Drive에는 데이터만 둡니다. .py 파일은 없고 노트북만 있습니다. AI 에이전트(Claude Code, Codex)로 작업할 때의 git 규칙은 [AGENTS.md](AGENTS.md)에 있습니다.
+코드는 이 GitHub 레포가 기준입니다. 데이터와 산출물(`raw/`, `data/`, `outputs/`, `report/`)은 모두 팀 Drive에 둡니다. AI 에이전트(Claude Code, Codex, Antigravity)로 작업할 때의 규칙은 [AGENTS.md](AGENTS.md)에 있습니다.
 
 ## 필요한 패키지
 Python 3.10, `pip install -r requirements.txt` (검증된 버전 고정). Colab에는 optuna만 없습니다(`pip install optuna`).
@@ -29,12 +29,12 @@ git clone https://github.com/Walnutbrown/kdt14th-lendingclub.git # 처음 한 �
 git switch main && git pull                                       # 작업 시작할 때마다
 git switch -c logit/bootstrap-b100                                # 새 작업 브랜치
 # ... 노트북 수정·실행 ...
-git add notebooks/02_logit.ipynb outputs/logit/ && git commit -m "B=100 bootstrap 결과"
+git add notebooks/02_logit.ipynb && git commit -m "B=100 bootstrap 코드 정리"
 git push -u origin logit/bootstrap-b100                           # 그다음 GitHub에서 PR 생성
 ```
 
-- `git add .` 대신 자기 담당 파일만 add합니다.
-- 데이터(`raw/`, `test_hold/`, `data/*.parquet`)는 git에 올라가지 않습니다(`.gitignore`).
+- `git add .` 대신 자기 담당 코드/노트북만 add합니다.
+- 데이터와 산출물(`raw/`, `test_hold/`, `data/`, `outputs/`, `report/`)은 git에 올라가지 않습니다(`.gitignore`). 로컬에서 실행해 산출물이 생기면 팀 Drive 공유폴더에 직접 올립니다.
 
 ## 처음 한 번
 1. 레포를 clone하고 패키지를 설치합니다: `git clone https://github.com/Walnutbrown/kdt14th-lendingclub.git` → `pip install -r requirements.txt`
@@ -53,12 +53,12 @@ git push -u origin logit/bootstrap-b100                           # 그다음 Gi
   ```
 - 실행하면 `[config] 해시`와 `[lib_prep] 해시`가 출력됩니다. 공지된 해시와 다르면 옛 파일입니다.
 - `00_config`와 `lib_prep`은 core 담당만 고칩니다.
-- Colab: 첫 칸 맨 위에 아래 두 줄을 더합니다. Drive를 마운트하고, 레포를 받고, Drive의 `raw/`·`data/`를 연결하고, optuna·한글 글꼴을 설치한 뒤 `notebooks/`로 이동합니다. 처음 한 번은 Drive 웹에서 공유받은 `LendingClub` 폴더를 "바로가기 추가 → 내 드라이브"로 넣어 둡니다.
+- Colab: 첫 칸 맨 위에 아래 두 줄을 더합니다. Drive를 마운트하고, 레포를 받고, Drive의 `raw/`·`data/`(투입)와 `outputs/`·`report/`(산출)를 연결하고, optuna·한글 글꼴을 설치한 뒤 `notebooks/`로 이동합니다. 처음 한 번은 Drive 웹에서 공유받은 `LendingClub` 폴더(편집자 권한 필요)를 "바로가기 추가 → 내 드라이브"로 넣어 둡니다.
   ```
   !curl -sL https://raw.githubusercontent.com/Walnutbrown/kdt14th-lendingclub/main/colab_setup.py -o /content/colab_setup.py
   %run -i /content/colab_setup.py
   ```
-  세션이 끝나면 결과가 지워지므로 `save_results("<구역>/<할 일>", ["outputs/...", "report/..."], "메시지")`로 브랜치에 push한 뒤 PR을 만듭니다. Colab 왼쪽 열쇠 아이콘(보안 비밀)에 GitHub 토큰을 `GH_TOKEN`으로 한 번 등록해 둡니다.
+  실행 결과(`outputs/`, `report/`)는 팀 Drive 공유폴더에 바로 자동 저장되며 git에 올리지 않습니다(구역별 하위 폴더 `outputs/logit/`, `outputs/xgb/`, `outputs/eval/`로 분리해 덮어쓰기 방지). Colab에서 수정한 노트북/코드만 브랜치에 올릴 때는 `save_results("<구역>/<할 일>", ["notebooks/..."], "메시지")`를 씁니다(Colab 왼쪽 열쇠 아이콘 보안 비밀에 `GH_TOKEN` 1회 등록).
 
 ## 노트북
 - `00_config` 공통 설정 (core 담당)
