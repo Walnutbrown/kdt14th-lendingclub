@@ -69,17 +69,17 @@ git push -u origin logit/bootstrap-b100                           # 그다음 Gi
 ## 노트북 순서
 위에서 아래로 실행합니다. 각 노트북은 앞 단계의 출력 경로를 그대로 읽습니다.
 
-| 단계 | 노트북 | 구역 | 읽는 것 | 쓰는 것 |
-|---|---|---|---|---|
-| 준비 | `01_prep` | core | `raw/lending_club_2020_train_new.csv`, `raw/us_treasury_3y_5y_monthly.csv` | `data/dev_X_raw.parquet`, `data/dev_meta.parquet`, `contract/` |
-| 준비 | `01b_eda_audit` | core | `raw/` | 보고서 표 1~3 |
-| 3 튜닝 | `03_tune` | xgb | `data/` | `contract/xgb_params.json` |
-| 4 부트스트랩 | `02_logit` · `03_xgb` · `04_xgb_mono` | logit · xgb · xgb | `data/` | `outputs/logit/` · `outputs/xgb/` · `outputs/xgb_mono/` |
-| 민감도 | `07_core16` | logit·xgb | `data/` | `outputs/core16/` |
-| 5·6 a*·선택 | `06_collect` | logit | `outputs/{logit,xgb,xgb_mono}/` | `outputs/collect/selection.json`, 표 4, 그림 2~4 |
-| 6b 사전 고정 | `99_freeze` | core | 위 전부 | `freeze/freeze_<시각>/FREEZE_RECORD.json` |
-| 7 Test 준비 | `00b_test_prep` | core | `raw/lending_club_2020_test_new.csv`, `freeze/` | `test_hold/test_X_raw.parquet`, `test_meta.parquet`, `test_prep_meta.json` |
-| 7·8 Test 평가 | `05_test` | eval | `test_hold/`, `outputs/*/`, `freeze/` | `report/tables/`, `report/figures/` (표 5~9·A, 그림 5~8) |
+| 단계 | 노트북 | Colab | 구역 | 읽는 것 | 쓰는 것 |
+|---|---|---|---|---|---|
+| 준비 | `01_prep` | [열기](https://colab.research.google.com/github/Walnutbrown/kdt14th-lendingclub/blob/main/notebooks/01_prep.ipynb) | core | `raw/lending_club_2020_train_new.csv`, `raw/us_treasury_3y_5y_monthly.csv` | `data/dev_X_raw.parquet`, `data/dev_meta.parquet`, `contract/` |
+| 준비 | `01b_eda_audit` | [열기](https://colab.research.google.com/github/Walnutbrown/kdt14th-lendingclub/blob/main/notebooks/01b_eda_audit.ipynb) | core | `raw/` | 보고서 표 1~3 |
+| 3 튜닝 | `03_tune` | [열기](https://colab.research.google.com/github/Walnutbrown/kdt14th-lendingclub/blob/main/notebooks/03_tune.ipynb) | xgb | `data/` | `contract/xgb_params.json` |
+| 4 부트스트랩 | `02_logit` · `03_xgb` · `04_xgb_mono` | [02](https://colab.research.google.com/github/Walnutbrown/kdt14th-lendingclub/blob/main/notebooks/02_logit.ipynb) · [03](https://colab.research.google.com/github/Walnutbrown/kdt14th-lendingclub/blob/main/notebooks/03_xgb.ipynb) · [04](https://colab.research.google.com/github/Walnutbrown/kdt14th-lendingclub/blob/main/notebooks/04_xgb_mono.ipynb) | logit · xgb · xgb | `data/` | `outputs/logit/` · `outputs/xgb/` · `outputs/xgb_mono/` |
+| 민감도 | `07_core16` | [열기](https://colab.research.google.com/github/Walnutbrown/kdt14th-lendingclub/blob/main/notebooks/07_core16.ipynb) | logit·xgb | `data/` | `outputs/core16/` |
+| 5·6 a*·선택 | `06_collect` | [열기](https://colab.research.google.com/github/Walnutbrown/kdt14th-lendingclub/blob/main/notebooks/06_collect.ipynb) | logit | `outputs/{logit,xgb,xgb_mono}/` | `outputs/collect/selection.json`, 표 4, 그림 2~4 |
+| 6b 사전 고정 | `99_freeze` | [열기](https://colab.research.google.com/github/Walnutbrown/kdt14th-lendingclub/blob/main/notebooks/99_freeze.ipynb) | core | 위 전부 | `freeze/freeze_<시각>/FREEZE_RECORD.json` |
+| 7 Test 준비 | `00b_test_prep` | [열기](https://colab.research.google.com/github/Walnutbrown/kdt14th-lendingclub/blob/main/notebooks/00b_test_prep.ipynb) | core | `raw/lending_club_2020_test_new.csv`, `freeze/` | `test_hold/test_X_raw.parquet`, `test_meta.parquet`, `test_prep_meta.json` |
+| 7·8 Test 평가 | `05_test` | [열기](https://colab.research.google.com/github/Walnutbrown/kdt14th-lendingclub/blob/main/notebooks/05_test.ipynb) | eval | `test_hold/`, `outputs/*/`, `freeze/` | `report/tables/`, `report/figures/` (표 5~9·A, 그림 5~8) |
 
 함수만 담은 노트북(직접 실행하지 않고 `%run`으로 불러 씀): `00_config`(설정 로더, 값은 `contract/params.json`), `lib_prep`(전처리), `lib_engine`(부트스트랩·SR 곡선), `lib_eval`·`lib_eval_add`(Test 평가). `model_template`은 모형 노트북의 원본입니다.
 
