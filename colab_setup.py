@@ -19,10 +19,9 @@ import subprocess
 REPO_URL = "github.com/Walnutbrown/kdt14th-lendingclub.git"
 REPO = os.environ.get("LC_REPO", "/content/kdt14th-lendingclub")
 BRANCH = os.environ.get("LC_BRANCH", "main").strip() or "main"
-ISOLATE_OUT = os.environ.get("LC_ISOLATE_OUT", "0").strip().lower() in ("1", "true", "yes")
 DRIVE_ROOT = os.environ.get("LC_DRIVE", "/content/drive/MyDrive/LendingClub")
 IN_LINKS = {"raw": "raw", "data": ".ipynb/lendingclub/data"}   # 투입: Drive에 이미 있어야 함
-OUT_LINKS = {"outputs": "outputs", "report": "report", "freeze": "freeze"}   # 산출: Drive에 없으면 자동 생성
+OUT_LINKS = {"outputs": "outputs", "report": "report"}         # 산출: 기존 Drive 폴더에 바로 덮어쓰기
 BLOCKED_GIT_PREFIXES = ("raw/", "data/", "test_hold/", "outputs/", "report/", "freeze/")
 NANUM = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 
@@ -75,22 +74,15 @@ for rel, src in IN_LINKS.items():
     else:
         os.symlink(target, dst)
 
-if ISOLATE_OUT:
-    for rel in OUT_LINKS:
-        dst = os.path.join(REPO, rel)
-        if os.path.islink(dst):
-            os.unlink(dst)
-        os.makedirs(dst, exist_ok=True)
-else:
-    for rel, src in OUT_LINKS.items():
-        dst, target = os.path.join(REPO, rel), os.path.join(DRIVE_ROOT, src)
-        os.makedirs(target, exist_ok=True)
-        if os.path.islink(dst):
-            os.unlink(dst)
-        elif os.path.isdir(dst):
-            _copy_missing(dst, target)   # 레포의 기존 요약표 등이 Drive에 없을 때만 보존
-            shutil.rmtree(dst)
-        os.symlink(target, dst)
+for rel, src in OUT_LINKS.items():
+    dst, target = os.path.join(REPO, rel), os.path.join(DRIVE_ROOT, src)
+    os.makedirs(target, exist_ok=True)
+    if os.path.islink(dst):
+        os.unlink(dst)
+    elif os.path.isdir(dst):
+        _copy_missing(dst, target)   # 레포의 기존 요약표 등이 Drive에 없을 때만 보존
+        shutil.rmtree(dst)
+    os.symlink(target, dst)
 
 try:
     import optuna  # noqa: F401
@@ -106,12 +98,10 @@ os.chdir(f"{REPO}/notebooks")
 COLAB_SETUP_INFO = {
     "branch": _sh("git branch --show-current", cwd=REPO),
     "head": _sh("git rev-parse HEAD", cwd=REPO),
-    "isolated_out": ISOLATE_OUT,
 }
-_out_dest = "로컬(/content, LC_ISOLATE_OUT=1)" if ISOLATE_OUT else DRIVE_ROOT
 print(
     f"[colab_setup] 브랜치 {COLAB_SETUP_INFO['branch']} ({COLAB_SETUP_INFO['head'][:8]})"
-    f" | 입력→{DRIVE_ROOT} | 산출→{_out_dest} | 위치 {os.getcwd()}"
+    f" | raw·data·outputs·report → {DRIVE_ROOT} | 위치 {os.getcwd()}"
 )
 
 
