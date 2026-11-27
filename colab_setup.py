@@ -18,10 +18,11 @@ import subprocess
 
 REPO_URL = "github.com/Walnutbrown/kdt14th-lendingclub.git"
 REPO = os.environ.get("LC_REPO", "/content/kdt14th-lendingclub")
+BRANCH = os.environ.get("LC_BRANCH", "main").strip() or "main"
 DRIVE_ROOT = os.environ.get("LC_DRIVE", "/content/drive/MyDrive/LendingClub")
 IN_LINKS = {"raw": "raw", "data": ".ipynb/lendingclub/data"}   # 투입: Drive에 이미 있어야 함
-OUT_LINKS = {"outputs": "outputs", "report": "report"}         # 산출: Drive에 없으면 자동 생성
-BLOCKED_GIT_PREFIXES = ("raw/", "data/", "test_hold/", "outputs/", "report/")
+OUT_LINKS = {"outputs": "outputs", "report": "report"}         # 산출: 기존 Drive 폴더에 바로 덮어쓰기
+BLOCKED_GIT_PREFIXES = ("raw/", "data/", "test_hold/", "outputs/", "report/", "freeze/")
 NANUM = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 
 
@@ -51,15 +52,16 @@ if not os.path.isdir(DRIVE_ROOT):
     raise FileNotFoundError(f"{DRIVE_ROOT} 없음. Drive 웹에서 LendingClub 폴더를 '내 드라이브'에 바로가기 추가하세요.")
 
 if os.path.isdir(f"{REPO}/.git"):
-    # 심볼릭 링크가 있으면 git pull 충돌을 막기 위해 잠시 해제 후 복구
+    # 심볼릭 링크가 있으면 git pull/switch 충돌을 막기 위해 잠시 해제 후 복구
     for rel in (*IN_LINKS, *OUT_LINKS):
         dst = os.path.join(REPO, rel)
         if os.path.islink(dst):
             os.unlink(dst)
     subprocess.run("git checkout -q -- outputs report", shell=True, cwd=REPO, capture_output=True)
-    _sh("git pull -q", cwd=REPO)
+    _sh(f"git fetch -q origin {BRANCH}", cwd=REPO)
+    _sh(f"git checkout -q -B {BRANCH} origin/{BRANCH}", cwd=REPO)
 else:
-    _sh(f"git clone -q https://{REPO_URL} {REPO}")
+    _sh(f"git clone -q --branch {BRANCH} https://{REPO_URL} {REPO}")
 
 for rel, src in IN_LINKS.items():
     dst, target = os.path.join(REPO, rel), os.path.join(DRIVE_ROOT, src)
@@ -93,8 +95,12 @@ if os.path.exists(NANUM):
     font_manager.fontManager.addfont(NANUM)   # 등록해 두면 lib_engine·lib_eval 모두 NanumGothic을 찾음
 
 os.chdir(f"{REPO}/notebooks")
+COLAB_SETUP_INFO = {
+    "branch": _sh("git branch --show-current", cwd=REPO),
+    "head": _sh("git rev-parse HEAD", cwd=REPO),
+}
 print(
-    f"[colab_setup] 브랜치 {_sh('git branch --show-current', cwd=REPO)}"
+    f"[colab_setup] 브랜치 {COLAB_SETUP_INFO['branch']} ({COLAB_SETUP_INFO['head'][:8]})"
     f" | raw·data·outputs·report → {DRIVE_ROOT} | 위치 {os.getcwd()}"
 )
 

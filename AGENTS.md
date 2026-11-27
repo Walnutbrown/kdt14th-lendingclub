@@ -27,10 +27,10 @@ git commit -m "<무엇을 했는지 한 줄>"
 ```
 - `git add .`, `git add -A`, `git commit -a`는 쓰지 않습니다. 다른 구역 파일이 섞여 들어갑니다.
 - **데이터 투입과 산출물 모두 git이 아니라 팀 Drive(`LendingClub/`)에 둡니다.** 이 레포는 public이라 커밋한 파일은 누구나 받을 수 있고, 지워도 기록에 남습니다.
-  - 원본(`raw/`), Test(`test_hold/`), 중간 데이터(`data/`), 모델·결과물(`outputs/`, `report/`)은 절대 커밋하지 않습니다. `git add -f`로 `.gitignore`를 우회하지 않습니다.
+  - 원본(`raw/`), Test(`test_hold/`), 중간 데이터(`data/`), 모델·결과물(`outputs/`, `report/`), 사전 고정 스냅샷(`freeze/`)은 절대 커밋하지 않습니다. `git add -f`로 `.gitignore`를 우회하지 않습니다.
   - git에 올리는 것은 노트북(`.ipynb`), 코드, 설정(`contract/`), 문서뿐입니다.
   - 로컬에서 실행해 `data/`, `outputs/`, `report/` 산출물이 새로 생겼으면 커밋 대신 사용자에게 "Drive 공유폴더(`LendingClub/<폴더>/`)에 올리라"고 알립니다(`data/*.parquet`은 `00_config` 해시도 함께 공지).
-  - 사람별·버전별 폴더나 접미사(`_v2`, `_new` 등)를 새로 만들지 않고, 정해진 공용 경로(`data/`, `outputs/logit/`, `outputs/xgb/`, `outputs/eval/`, `report/`)에 새 결과가 나오면 기존 파일 위에 그대로 덮어써서 최신본 1개를 유지합니다.
+  - 사람별·버전별 폴더나 접미사(`_v2`, `_new` 등)를 새로 만들지 않고, 정해진 공용 경로(`data/`, `outputs/logit/`, `outputs/xgb/`, `outputs/xgb_mono/`, `outputs/core16/`, `outputs/collect/`, `report/`)에 새 결과가 나오면 기존 파일 위에 그대로 덮어써서 최신본 1개를 유지합니다.
   - 커밋 전에 `git diff --cached --stat`으로 확인하고, **5MB가 넘는 파일이 있으면 멈추고** 사용자에게 물어봅니다.
 - **Colab 실행 규칙**:
   - **새 노트북을 만들거나 기존 실행 노트북을 수정할 때는 첫 코드 셀 맨 위에 아래 Colab 자동 연결 코드를 반드시 포함**합니다(로컬에서는 건너뛰고, Colab에서만 `colab_setup.py`가 실행되어 `raw/`, `data/`, `outputs/`, `report/`가 팀 Drive 공유폴더로 자동 연결·저장됩니다):
@@ -56,7 +56,7 @@ git push -u origin <브랜치>
 gh pr create --base main --title "<구역>: <할 일>" --body "<무엇을, 왜. 결과 파일 경로>"
 ```
 - PR 본문에 바뀐 파일과 확인한 결과(숫자, 그림 경로)를 적습니다.
-- 자기 PR을 스스로 merge하지 않습니다. 다른 팀원 1명이 승인해야 merge됩니다.
+- PR은 다른 팀원 1명의 승인 **또는 레포에 설정된 PR 리뷰 봇의 검토·승인**을 거쳐 merge합니다(코드를 작성한 작업 에이전트가 임의로 merge하지 않음).
 - merge되면 GitHub 브랜치는 자동으로 지워집니다. 로컬은 이렇게 정리합니다:
   ```bash
   git switch main && git pull origin main && git branch -d <브랜치>

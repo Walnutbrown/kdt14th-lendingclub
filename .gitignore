@@ -3,6 +3,7 @@
 /data
 /outputs
 /report
+/freeze
 processed/
 test_hold/
 *.csv
