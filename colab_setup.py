@@ -7,11 +7,13 @@
     %run -i ./00_config.ipynb
     %run -i ./lib_prep.ipynb
 
-처음 한 번: Drive 웹에서 공유받은 'LendingClub' 폴더(편집자 권한 필요) → 오른쪽 클릭 → '바로가기 추가' → '내 드라이브'.
+처음 한 번: Drive 웹에서 공유받은 'LendingClub' 폴더(편집자 권한 필요)가 '내 드라이브/SNU KDT 14 4조/LendingClub'에 있거나,
+또는 다른 팀원처럼 '내 드라이브/LendingClub' 바로가기로 추가되어 있으면 자동으로 인식합니다(필요 시 LC_DRIVE 환경변수로 지정).
 산출물(outputs/, report/, freeze/, test_hold/)은 Drive 공유폴더에 바로 자동 저장되며 git에 올리지 않습니다.
 코드/노트북을 Colab에서 바로 push할 때만 save_results("logit/bootstrap-b100", ["notebooks/02_logit.ipynb"], "메시지") 사용
 (Colab 왼쪽 열쇠 아이콘 '보안 비밀'에 GH_TOKEN 등록 필요: GitHub → Settings → Developer settings → Personal access tokens).
 """
+import glob
 import hashlib
 import os
 import shutil
@@ -20,12 +22,49 @@ import subprocess
 REPO_URL = "github.com/Walnutbrown/kdt14th-lendingclub.git"
 REPO = os.environ.get("LC_REPO", "/content/kdt14th-lendingclub")
 BRANCH = os.environ.get("LC_BRANCH", "main").strip() or "main"
-DRIVE_ROOT = os.environ.get("LC_DRIVE", "/content/drive/MyDrive/LendingClub")
+MYDRIVE_DIR = os.environ.get("LC_MYDRIVE", "/content/drive/MyDrive")
+def _drive_candidates(mydrive):
+    return (
+        os.path.join(mydrive, "SNU KDT 14 4조", "LendingClub"),
+        os.path.join(mydrive, "LendingClub"),
+    )
+
+
+DEFAULT_DRIVE_CANDIDATES = _drive_candidates(MYDRIVE_DIR)
+DRIVE_ROOT = os.environ.get("LC_DRIVE", DEFAULT_DRIVE_CANDIDATES[0])
 IN_LINKS = {"raw": "raw", "data": ".ipynb/lendingclub/data"}   # 투입: Drive에 이미 있어야 함
 OUT_LINKS = {"outputs": "outputs", "report": "report",         # 산출: 기존 Drive 폴더에 바로 덮어쓰기
              "freeze": "freeze", "test_hold": "test_hold"}     # 99_freeze 기록·00b Test parquet: 세션이 바뀌어도 05_test가 읽도록 Drive에 둠
 BLOCKED_GIT_PREFIXES = ("raw/", "data/", "test_hold/", "outputs/", "report/", "freeze/")
 NANUM = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
+
+
+def _is_lendingclub_root(path):
+    return os.path.isdir(path) and os.path.isdir(os.path.join(path, "raw"))
+
+
+def _resolve_drive_root(mydrive=MYDRIVE_DIR):
+    """LC_DRIVE → 실제 팀 Drive 경로(SNU KDT 14 4조/LendingClub) → 바로가기(LendingClub) → 1단계 하위 탐색 순으로 찾는다."""
+    given = os.environ.get("LC_DRIVE", "").strip()
+    if given:
+        if not os.path.isdir(given):
+            raise FileNotFoundError(f"LC_DRIVE 경로가 없음: {given}")
+        return given
+    candidates = _drive_candidates(mydrive)
+    for cand in candidates:
+        if _is_lendingclub_root(cand):
+            return cand
+    for cand in sorted(glob.glob(os.path.join(mydrive, "*", "LendingClub"))):
+        if _is_lendingclub_root(cand):
+            return cand
+    for cand in candidates:
+        if os.path.isdir(cand):
+            return cand
+    raise FileNotFoundError(
+        "LendingClub Drive 폴더를 못 찾음 "
+        f"(확인한 경로: {', '.join(candidates)}). "
+        "Drive에서 '내 드라이브/SNU KDT 14 4조/LendingClub' 위치를 확인하거나 'LendingClub' 바로가기를 '내 드라이브'에 추가하세요."
+    )
 
 
 def _sh(cmd, cwd=None):
@@ -71,8 +110,7 @@ def _sync_to_drive(src_dir, dst_dir):
 from google.colab import drive  # noqa: E402  (Colab 전용)
 
 drive.mount("/content/drive")
-if not os.path.isdir(DRIVE_ROOT):
-    raise FileNotFoundError(f"{DRIVE_ROOT} 없음. Drive 웹에서 LendingClub 폴더를 '내 드라이브'에 바로가기 추가하세요.")
+DRIVE_ROOT = _resolve_drive_root()
 
 if os.path.isdir(f"{REPO}/.git"):
     # 심볼릭 링크가 있으면 git pull/switch 충돌을 막기 위해 잠시 해제 후 복구
