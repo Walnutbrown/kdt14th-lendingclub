@@ -1,4 +1,4 @@
-"""Colab 준비: Drive 마운트 → 레포 clone/pull → Drive 입출력(raw·data·outputs·report) 연결 → optuna·한글 글꼴 → notebooks/로 이동.
+"""Colab 준비: Drive 마운트 → 레포 clone/pull → Drive 입출력(raw·data·outputs·report·freeze·test_hold) 연결 → optuna·한글 글꼴 → notebooks/로 이동.
 
 노트북 첫 칸 (Colab에서만, 로컬 Jupyter는 기존 세 줄 그대로):
     !curl -sL https://raw.githubusercontent.com/Walnutbrown/kdt14th-lendingclub/main/colab_setup.py -o /content/colab_setup.py
@@ -8,10 +8,11 @@
     %run -i ./lib_prep.ipynb
 
 처음 한 번: Drive 웹에서 공유받은 'LendingClub' 폴더(편집자 권한 필요) → 오른쪽 클릭 → '바로가기 추가' → '내 드라이브'.
-산출물(outputs/, report/)은 Drive 공유폴더에 바로 자동 저장되며 git에 올리지 않습니다.
+산출물(outputs/, report/, freeze/, test_hold/)은 Drive 공유폴더에 바로 자동 저장되며 git에 올리지 않습니다.
 코드/노트북을 Colab에서 바로 push할 때만 save_results("logit/bootstrap-b100", ["notebooks/02_logit.ipynb"], "메시지") 사용
 (Colab 왼쪽 열쇠 아이콘 '보안 비밀'에 GH_TOKEN 등록 필요: GitHub → Settings → Developer settings → Personal access tokens).
 """
+import hashlib
 import os
 import shutil
 import subprocess
@@ -21,7 +22,8 @@ REPO = os.environ.get("LC_REPO", "/content/kdt14th-lendingclub")
 BRANCH = os.environ.get("LC_BRANCH", "main").strip() or "main"
 DRIVE_ROOT = os.environ.get("LC_DRIVE", "/content/drive/MyDrive/LendingClub")
 IN_LINKS = {"raw": "raw", "data": ".ipynb/lendingclub/data"}   # 투입: Drive에 이미 있어야 함
-OUT_LINKS = {"outputs": "outputs", "report": "report"}         # 산출: 기존 Drive 폴더에 바로 덮어쓰기
+OUT_LINKS = {"outputs": "outputs", "report": "report",         # 산출: 기존 Drive 폴더에 바로 덮어쓰기
+             "freeze": "freeze", "test_hold": "test_hold"}     # 99_freeze 기록·00b Test parquet: 세션이 바뀌어도 05_test가 읽도록 Drive에 둠
 BLOCKED_GIT_PREFIXES = ("raw/", "data/", "test_hold/", "outputs/", "report/", "freeze/")
 NANUM = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 
@@ -33,16 +35,37 @@ def _sh(cmd, cwd=None):
     return r.stdout.strip()
 
 
-def _copy_missing(src_dir, dst_dir):
-    """src_dir의 파일 중 dst_dir에 없는 것만 복사한다(Drive 기존 파일은 덮어쓰지 않음)."""
+def _file_sha256(path, chunk_size=1 << 20):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        while True:
+            buf = f.read(chunk_size)
+            if not buf:
+                break
+            h.update(buf)
+    return h.hexdigest()
+
+
+def _same_file(p1, p2):
+    return os.path.getsize(p1) == os.path.getsize(p2) and _file_sha256(p1) == _file_sha256(p2)
+
+
+def _sync_to_drive(src_dir, dst_dir):
+    """로컬 src_dir의 파일을 Drive dst_dir로 옮긴다. 동명 파일이 있으면 더 최신(mtime) 파일로 덮어쓴다."""
     for root, _, files in os.walk(src_dir):
         rel = os.path.relpath(root, src_dir)
         out_dir = dst_dir if rel == "." else os.path.join(dst_dir, rel)
         os.makedirs(out_dir, exist_ok=True)
-        for name in files:
+        for name in sorted(files):
             src_f, dst_f = os.path.join(root, name), os.path.join(out_dir, name)
             if not os.path.exists(dst_f):
                 shutil.copy2(src_f, dst_f)
+            elif os.path.isfile(dst_f) and not _same_file(src_f, dst_f):
+                if os.path.getmtime(src_f) >= os.path.getmtime(dst_f):
+                    shutil.copy2(src_f, dst_f)
+                    print(f"[colab_setup] Drive 기존 파일 덮어씀(새 로컬 파일): {os.path.relpath(dst_f, DRIVE_ROOT)}")
+                else:
+                    print(f"[colab_setup] Drive 최신 파일 유지(로컬 파일이 더 오래됨): {os.path.relpath(dst_f, DRIVE_ROOT)}")
 
 
 from google.colab import drive  # noqa: E402  (Colab 전용)
@@ -80,7 +103,7 @@ for rel, src in OUT_LINKS.items():
     if os.path.islink(dst):
         os.unlink(dst)
     elif os.path.isdir(dst):
-        _copy_missing(dst, target)   # 레포의 기존 요약표 등이 Drive에 없을 때만 보존
+        _sync_to_drive(dst, target)   # 로컬 산출물이 있으면 Drive로 옮김 (동명 파일은 더 최신 파일로 덮어쓰기)
         shutil.rmtree(dst)
     os.symlink(target, dst)
 
@@ -101,7 +124,7 @@ COLAB_SETUP_INFO = {
 }
 print(
     f"[colab_setup] 브랜치 {COLAB_SETUP_INFO['branch']} ({COLAB_SETUP_INFO['head'][:8]})"
-    f" | raw·data·outputs·report → {DRIVE_ROOT} | 위치 {os.getcwd()}"
+    f" | raw·data·outputs·report·freeze·test_hold → {DRIVE_ROOT} | 위치 {os.getcwd()}"
 )
 
 
