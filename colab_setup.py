@@ -33,8 +33,9 @@ def _drive_candidates(mydrive):
 DEFAULT_DRIVE_CANDIDATES = _drive_candidates(MYDRIVE_DIR)
 DRIVE_ROOT = os.environ.get("LC_DRIVE", DEFAULT_DRIVE_CANDIDATES[0])
 IN_LINKS = {"raw": "raw"}   # 투입: Drive에 이미 있어야 함 (원본 CSV)
-OUT_LINKS = {"data": "data", "outputs": "outputs", "report": "report",   # 산출: Drive에 없으면 자동 생성, 기존 파일은 더 최신으로 덮어쓰기
-             "freeze": "freeze", "test_hold": "test_hold"}               # 01_prep data·99_freeze 기록·00b Test parquet 모두 Drive에 둠
+DATA_LINK = ("data", "data")  # 전처리 세트: 파일별 mtime 병합 금지(내용 다르면 중단, 비어 있을 때만 한 세트로 이동)
+OUT_LINKS = {"outputs": "outputs", "report": "report",   # 산출: Drive에 없으면 자동 생성, 기존 파일은 더 최신으로 덮어쓰기
+             "freeze": "freeze", "test_hold": "test_hold"}
 BLOCKED_GIT_PREFIXES = ("raw/", "data/", "test_hold/", "outputs/", "report/", "freeze/")
 NANUM = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 
@@ -106,6 +107,50 @@ def _same_file(p1, p2):
     return os.path.getsize(p1) == os.path.getsize(p2) and _file_sha256(p1) == _file_sha256(p2)
 
 
+def _dir_files_map(root):
+    files_map = {}
+    for cur, _, files in os.walk(root):
+        rel_dir = os.path.relpath(cur, root)
+        for name in sorted(files):
+            rel = name if rel_dir == "." else os.path.join(rel_dir, name)
+            files_map[rel] = os.path.join(cur, name)
+    return files_map
+
+
+def _link_data_dir(dst, target):
+    """data/는 전처리 산출물 한 세트이므로 파일별 mtime 덮어쓰기를 하지 않고 일관성을 검증한 뒤 연결한다."""
+    os.makedirs(target, exist_ok=True)
+    if os.path.islink(dst):
+        os.unlink(dst)
+        os.symlink(target, dst)
+        return
+    if os.path.isdir(dst):
+        local_files = _dir_files_map(dst)
+        if local_files:
+            drive_files = _dir_files_map(target)
+            if drive_files:
+                same_set = set(local_files) == set(drive_files) and all(
+                    _same_file(local_files[rel], drive_files[rel]) for rel in local_files
+                )
+                if not same_set:
+                    raise RuntimeError(
+                        f"로컬 {dst}와 Drive {target}의 data/ 내용이 달라 병합하지 않고 중단합니다(로컬 사본 보존됨). "
+                        "서로 다른 전처리 결과(dev_X_raw·dev_meta)가 섞이지 않도록 한쪽을 정리한 뒤 다시 실행하세요."
+                    )
+            else:
+                for rel, src_f in local_files.items():
+                    dst_f = os.path.join(target, rel)
+                    os.makedirs(os.path.dirname(dst_f), exist_ok=True)
+                    shutil.copy2(src_f, dst_f)
+                assert all(_same_file(src_f, os.path.join(target, rel)) for rel, src_f in local_files.items())
+        shutil.rmtree(dst)
+        os.symlink(target, dst)
+        return
+    if os.path.exists(dst):
+        raise FileExistsError(f"로컬 {dst}가 폴더나 심볼릭 링크가 아니어서 Drive data/와 연결할 수 없음")
+    os.symlink(target, dst)
+
+
 def _sync_to_drive(src_dir, dst_dir):
     """로컬 src_dir의 파일을 Drive dst_dir로 옮긴다. 동명 파일이 있으면 더 최신(mtime) 파일로 덮어쓴다."""
     for root, _, files in os.walk(src_dir):
@@ -131,7 +176,7 @@ DRIVE_ROOT = _resolve_drive_root()
 
 if os.path.isdir(f"{REPO}/.git"):
     # 심볼릭 링크가 있으면 git pull/switch 충돌을 막기 위해 잠시 해제 후 복구
-    for rel in (*IN_LINKS, *OUT_LINKS):
+    for rel in (*IN_LINKS, DATA_LINK[0], *OUT_LINKS):
         dst = os.path.join(REPO, rel)
         if os.path.islink(dst):
             os.unlink(dst)
@@ -151,6 +196,8 @@ for rel, src in IN_LINKS.items():
         print(f"[colab_setup] {rel}/ 가 이미 있어 Drive 연결을 건너뜀")
     else:
         os.symlink(target, dst)
+
+_link_data_dir(os.path.join(REPO, DATA_LINK[0]), os.path.join(DRIVE_ROOT, DATA_LINK[1]))
 
 for rel, src in OUT_LINKS.items():
     dst, target = os.path.join(REPO, rel), os.path.join(DRIVE_ROOT, src)
