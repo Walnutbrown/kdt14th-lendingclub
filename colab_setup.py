@@ -32,19 +32,21 @@ def _drive_candidates(mydrive):
 
 DEFAULT_DRIVE_CANDIDATES = _drive_candidates(MYDRIVE_DIR)
 DRIVE_ROOT = os.environ.get("LC_DRIVE", DEFAULT_DRIVE_CANDIDATES[0])
-IN_LINKS = {"raw": "raw", "data": ".ipynb/lendingclub/data"}   # 투입: Drive에 이미 있어야 함
-OUT_LINKS = {"outputs": "outputs", "report": "report",         # 산출: 기존 Drive 폴더에 바로 덮어쓰기
-             "freeze": "freeze", "test_hold": "test_hold"}     # 99_freeze 기록·00b Test parquet: 세션이 바뀌어도 05_test가 읽도록 Drive에 둠
+IN_LINKS = {"raw": "raw"}   # 투입: Drive에 이미 있어야 함 (원본 CSV)
+OUT_LINKS = {"data": "data", "outputs": "outputs", "report": "report",   # 산출: Drive에 없으면 자동 생성, 기존 파일은 더 최신으로 덮어쓰기
+             "freeze": "freeze", "test_hold": "test_hold"}               # 01_prep data·99_freeze 기록·00b Test parquet 모두 Drive에 둠
 BLOCKED_GIT_PREFIXES = ("raw/", "data/", "test_hold/", "outputs/", "report/", "freeze/")
 NANUM = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 
 
 def _is_lendingclub_root(path):
-    return os.path.isdir(path) and os.path.isdir(os.path.join(path, "raw"))
+    return os.path.isdir(path) and all(
+        os.path.isdir(os.path.join(path, src)) for src in IN_LINKS.values()
+    )
 
 
 def _resolve_drive_root(mydrive=MYDRIVE_DIR):
-    """LC_DRIVE → 실제 팀 Drive 경로(SNU KDT 14 4조/LendingClub) → 바로가기(LendingClub) → 1단계 하위 탐색 순으로 찾는다."""
+    """LC_DRIVE → 실제 팀 Drive 경로(SNU KDT 14 4조/LendingClub) → 바로가기(LendingClub) → 단일 1단계 하위 폴더 순으로 찾는다."""
     given = os.environ.get("LC_DRIVE", "").strip()
     if given:
         if not os.path.isdir(given):
@@ -54,9 +56,24 @@ def _resolve_drive_root(mydrive=MYDRIVE_DIR):
     for cand in candidates:
         if _is_lendingclub_root(cand):
             return cand
-    for cand in sorted(glob.glob(os.path.join(mydrive, "*", "LendingClub"))):
-        if _is_lendingclub_root(cand):
-            return cand
+    fallback = list(
+        dict.fromkeys(
+            cand
+            for pattern in (
+                os.path.join(mydrive, "*", "LendingClub"),
+                os.path.join(mydrive, "*", "SNU KDT 14 4조", "LendingClub"),
+            )
+            for cand in sorted(glob.glob(pattern))
+            if _is_lendingclub_root(cand)
+        )
+    )
+    if len(fallback) == 1:
+        return fallback[0]
+    if len(fallback) > 1:
+        raise FileNotFoundError(
+            f"LendingClub Drive 폴더 후보가 여러 개여서 자동 선택하지 않음: {fallback}. "
+            "사용할 경로를 os.environ['LC_DRIVE']로 직접 지정하세요."
+        )
     for cand in candidates:
         if os.path.isdir(cand):
             return cand
