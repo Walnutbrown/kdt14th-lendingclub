@@ -7,11 +7,13 @@
     %run -i ./00_config.ipynb
     %run -i ./lib_prep.ipynb
 
-처음 한 번: Drive 웹에서 공유받은 'LendingClub' 폴더(편집자 권한 필요) → 오른쪽 클릭 → '바로가기 추가' → '내 드라이브'.
+처음 한 번: Drive 웹에서 공유받은 'LendingClub' 폴더(편집자 권한 필요)가 '내 드라이브/SNU KDT 14 4조/LendingClub'에 있거나,
+또는 다른 팀원처럼 '내 드라이브/LendingClub' 바로가기로 추가되어 있으면 자동으로 인식합니다(필요 시 LC_DRIVE 환경변수로 지정).
 산출물(outputs/, report/, freeze/, test_hold/)은 Drive 공유폴더에 바로 자동 저장되며 git에 올리지 않습니다.
 코드/노트북을 Colab에서 바로 push할 때만 save_results("logit/bootstrap-b100", ["notebooks/02_logit.ipynb"], "메시지") 사용
 (Colab 왼쪽 열쇠 아이콘 '보안 비밀'에 GH_TOKEN 등록 필요: GitHub → Settings → Developer settings → Personal access tokens).
 """
+import glob
 import hashlib
 import os
 import shutil
@@ -20,12 +22,67 @@ import subprocess
 REPO_URL = "github.com/Walnutbrown/kdt14th-lendingclub.git"
 REPO = os.environ.get("LC_REPO", "/content/kdt14th-lendingclub")
 BRANCH = os.environ.get("LC_BRANCH", "main").strip() or "main"
-DRIVE_ROOT = os.environ.get("LC_DRIVE", "/content/drive/MyDrive/LendingClub")
-IN_LINKS = {"raw": "raw", "data": ".ipynb/lendingclub/data"}   # 투입: Drive에 이미 있어야 함
-OUT_LINKS = {"outputs": "outputs", "report": "report",         # 산출: 기존 Drive 폴더에 바로 덮어쓰기
-             "freeze": "freeze", "test_hold": "test_hold"}     # 99_freeze 기록·00b Test parquet: 세션이 바뀌어도 05_test가 읽도록 Drive에 둠
+MYDRIVE_DIR = os.environ.get("LC_MYDRIVE", "/content/drive/MyDrive")
+def _drive_candidates(mydrive):
+    return (
+        os.path.join(mydrive, "SNU KDT 14 4조", "LendingClub"),
+        os.path.join(mydrive, "LendingClub"),
+    )
+
+
+DEFAULT_DRIVE_CANDIDATES = _drive_candidates(MYDRIVE_DIR)
+DRIVE_ROOT = os.environ.get("LC_DRIVE", DEFAULT_DRIVE_CANDIDATES[0])
+IN_LINKS = {"raw": "raw"}   # 투입: Drive에 이미 있어야 함 (원본 CSV)
+DATA_LINK = ("data", "data")  # 전처리 세트: 파일별 mtime 병합 금지(내용 다르면 중단, 비어 있을 때만 한 세트로 이동)
+OUT_LINKS = {"outputs": "outputs", "report": "report",   # 산출: Drive에 없으면 자동 생성, 기존 파일은 더 최신으로 덮어쓰기
+             "freeze": "freeze", "test_hold": "test_hold"}
 BLOCKED_GIT_PREFIXES = ("raw/", "data/", "test_hold/", "outputs/", "report/", "freeze/")
 NANUM = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
+
+
+def _is_lendingclub_root(path):
+    return os.path.isdir(path) and all(
+        os.path.isdir(os.path.join(path, src)) for src in IN_LINKS.values()
+    )
+
+
+def _resolve_drive_root(mydrive=MYDRIVE_DIR):
+    """LC_DRIVE → 실제 팀 Drive 경로(SNU KDT 14 4조/LendingClub) → 바로가기(LendingClub) → 단일 1단계 하위 폴더 순으로 찾는다."""
+    given = os.environ.get("LC_DRIVE", "").strip()
+    if given:
+        if not os.path.isdir(given):
+            raise FileNotFoundError(f"LC_DRIVE 경로가 없음: {given}")
+        return given
+    candidates = _drive_candidates(mydrive)
+    for cand in candidates:
+        if _is_lendingclub_root(cand):
+            return cand
+    fallback = list(
+        dict.fromkeys(
+            cand
+            for pattern in (
+                os.path.join(mydrive, "*", "LendingClub"),
+                os.path.join(mydrive, "*", "SNU KDT 14 4조", "LendingClub"),
+            )
+            for cand in sorted(glob.glob(pattern))
+            if _is_lendingclub_root(cand)
+        )
+    )
+    if len(fallback) == 1:
+        return fallback[0]
+    if len(fallback) > 1:
+        raise FileNotFoundError(
+            f"LendingClub Drive 폴더 후보가 여러 개여서 자동 선택하지 않음: {fallback}. "
+            "사용할 경로를 os.environ['LC_DRIVE']로 직접 지정하세요."
+        )
+    for cand in candidates:
+        if os.path.isdir(cand):
+            return cand
+    raise FileNotFoundError(
+        "LendingClub Drive 폴더를 못 찾음 "
+        f"(확인한 경로: {', '.join(candidates)}). "
+        "Drive에서 '내 드라이브/SNU KDT 14 4조/LendingClub' 위치를 확인하거나 'LendingClub' 바로가기를 '내 드라이브'에 추가하세요."
+    )
 
 
 def _sh(cmd, cwd=None):
@@ -50,6 +107,50 @@ def _same_file(p1, p2):
     return os.path.getsize(p1) == os.path.getsize(p2) and _file_sha256(p1) == _file_sha256(p2)
 
 
+def _dir_files_map(root):
+    files_map = {}
+    for cur, _, files in os.walk(root):
+        rel_dir = os.path.relpath(cur, root)
+        for name in sorted(files):
+            rel = name if rel_dir == "." else os.path.join(rel_dir, name)
+            files_map[rel] = os.path.join(cur, name)
+    return files_map
+
+
+def _link_data_dir(dst, target):
+    """data/는 전처리 산출물 한 세트이므로 파일별 mtime 덮어쓰기를 하지 않고 일관성을 검증한 뒤 연결한다."""
+    os.makedirs(target, exist_ok=True)
+    if os.path.islink(dst):
+        os.unlink(dst)
+        os.symlink(target, dst)
+        return
+    if os.path.isdir(dst):
+        local_files = _dir_files_map(dst)
+        if local_files:
+            drive_files = _dir_files_map(target)
+            if drive_files:
+                same_set = set(local_files) == set(drive_files) and all(
+                    _same_file(local_files[rel], drive_files[rel]) for rel in local_files
+                )
+                if not same_set:
+                    raise RuntimeError(
+                        f"로컬 {dst}와 Drive {target}의 data/ 내용이 달라 병합하지 않고 중단합니다(로컬 사본 보존됨). "
+                        "서로 다른 전처리 결과(dev_X_raw·dev_meta)가 섞이지 않도록 한쪽을 정리한 뒤 다시 실행하세요."
+                    )
+            else:
+                for rel, src_f in local_files.items():
+                    dst_f = os.path.join(target, rel)
+                    os.makedirs(os.path.dirname(dst_f), exist_ok=True)
+                    shutil.copy2(src_f, dst_f)
+                assert all(_same_file(src_f, os.path.join(target, rel)) for rel, src_f in local_files.items())
+        shutil.rmtree(dst)
+        os.symlink(target, dst)
+        return
+    if os.path.exists(dst):
+        raise FileExistsError(f"로컬 {dst}가 폴더나 심볼릭 링크가 아니어서 Drive data/와 연결할 수 없음")
+    os.symlink(target, dst)
+
+
 def _sync_to_drive(src_dir, dst_dir):
     """로컬 src_dir의 파일을 Drive dst_dir로 옮긴다. 동명 파일이 있으면 더 최신(mtime) 파일로 덮어쓴다."""
     for root, _, files in os.walk(src_dir):
@@ -71,12 +172,11 @@ def _sync_to_drive(src_dir, dst_dir):
 from google.colab import drive  # noqa: E402  (Colab 전용)
 
 drive.mount("/content/drive")
-if not os.path.isdir(DRIVE_ROOT):
-    raise FileNotFoundError(f"{DRIVE_ROOT} 없음. Drive 웹에서 LendingClub 폴더를 '내 드라이브'에 바로가기 추가하세요.")
+DRIVE_ROOT = _resolve_drive_root()
 
 if os.path.isdir(f"{REPO}/.git"):
     # 심볼릭 링크가 있으면 git pull/switch 충돌을 막기 위해 잠시 해제 후 복구
-    for rel in (*IN_LINKS, *OUT_LINKS):
+    for rel in (*IN_LINKS, DATA_LINK[0], *OUT_LINKS):
         dst = os.path.join(REPO, rel)
         if os.path.islink(dst):
             os.unlink(dst)
@@ -96,6 +196,8 @@ for rel, src in IN_LINKS.items():
         print(f"[colab_setup] {rel}/ 가 이미 있어 Drive 연결을 건너뜀")
     else:
         os.symlink(target, dst)
+
+_link_data_dir(os.path.join(REPO, DATA_LINK[0]), os.path.join(DRIVE_ROOT, DATA_LINK[1]))
 
 for rel, src in OUT_LINKS.items():
     dst, target = os.path.join(REPO, rel), os.path.join(DRIVE_ROOT, src)
